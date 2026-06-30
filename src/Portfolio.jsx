@@ -571,7 +571,7 @@ export default function Portfolio() {
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <MagButton href="mailto:desh0sevn@gmail.com" primary grad={[C.qa1, C.qa2]}><Mail size={16} /> desh0sevn@gmail.com</MagButton>
             <MagButton href="https://github.com/Desh07" grad={[C.qa1, C.qa2]}><GitBranch size={16} /> GitHub <ArrowUpRight size={13} /></MagButton>
-            <MagButton href="#" grad={[C.qa1, C.qa2]}><Code2 size={16} /> LinkedIn <ArrowUpRight size={13} /></MagButton>
+            <MagButton href="https://www.linkedin.com/in/vishvalingam-deshanth" grad={[C.qa1, C.qa2]}><Code2 size={16} /> LinkedIn <ArrowUpRight size={13} /></MagButton>
           </div>
           <div style={{ marginTop: 24, color: C.low, fontSize: 13, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
             <MapPin size={13} /> Matale, Sri Lanka
