@@ -798,6 +798,18 @@ function WebDevWizard() {
     } catch { setStatus("error"); }
   };
 
+  useEffect(() => {
+    if (status === "success") {
+      setTimeout(() => {
+        const el = document.getElementById("web-wizard-form");
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 50);
+    }
+  }, [status]);
+
   const hc = (field, val) => {
     setForm(f => ({ ...f, [field]: val }));
     if (errors[field]) setErrors(e => ({ ...e, [field]: undefined }));
@@ -828,7 +840,7 @@ function WebDevWizard() {
   if (status === "success") {
     const refId = `WEB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return (
-      <div style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+      <div id="web-wizard-form" style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: `${C.fl1}18`, border: `2px solid ${C.fl1}44`, display: "grid", placeItems: "center" }}>
           <CheckCircle2 size={40} style={{ color: C.fl1 }} />
         </div>
@@ -1074,6 +1086,18 @@ function QAWizard() {
     } catch { setStatus("error"); }
   };
 
+  useEffect(() => {
+    if (status === "success") {
+      setTimeout(() => {
+        const el = document.getElementById("qa-wizard-form");
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 50);
+    }
+  }, [status]);
+
   const hc = (field, val) => {
     setForm(f => ({ ...f, [field]: val }));
     if (errors[field]) setErrors(e => ({ ...e, [field]: undefined }));
@@ -1103,7 +1127,7 @@ function QAWizard() {
   if (status === "success") {
     const refId = `QA-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return (
-      <div style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+      <div id="qa-wizard-form" style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: `${C.qa1}18`, border: `2px solid ${C.qa1}44`, display: "grid", placeItems: "center" }}>
           <CheckCircle2 size={40} style={{ color: C.qa1 }} />
         </div>
@@ -1553,6 +1577,7 @@ export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [roleSwapping, setRoleSwapping] = useState(false);
   const [swipeKey, setSwipeKey] = useState(0);
+  const [toastMsg, setToastMsg] = useState("");
   const firstRender = useRef(true);
   useReveal();
   const scrolled = useScrolled();
@@ -1623,6 +1648,8 @@ export default function Portfolio() {
         setFlipState("idle");
         setRoleSwapping(false);
         document.documentElement.style.scrollBehavior = "";
+        setToastMsg(`Switched to ${next === 'qa' ? 'QA Engineer' : 'Web Developer'} Profile`);
+        setTimeout(() => setToastMsg(""), 3500);
       }, 500);
     }, 400);
   };
@@ -1746,6 +1773,7 @@ export default function Portfolio() {
         @keyframes wizBwd { 0%{opacity:0;transform:translateX(-32px)} 100%{opacity:1;transform:translateX(0)} }
         .wizFwd { animation:wizFwd .32s cubic-bezier(0.22,1,0.36,1) both; }
         .wizBwd { animation:wizBwd .32s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes toastSlide { 0% { opacity: 0; transform: translate(-50%, 20px); } 100% { opacity: 1; transform: translate(-50%, 0); } }
         .selCard {
           cursor:pointer; border:1.5px solid rgba(255,255,255,0.09); border-radius:16px;
           padding:18px 16px; background:rgba(255,255,255,0.03);
@@ -1851,7 +1879,7 @@ export default function Portfolio() {
             </p>
             <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
               <MagButton href="#projects" onClick={goTo("projects")} primary grad={grad}><Rocket size={16} /> See my work</MagButton>
-              <MagButton href={`#${contactId}`} onClick={goTo(contactId)} grad={grad}><Mail size={16} /> Say hello</MagButton>
+              <MagButton href="mailto:hello.deshanth@gmail.com" grad={grad}><Mail size={16} /> Email Me</MagButton>
               {mode === "qa" && (
                 <MagButton href="/Vishvalingam Deshanth.pdf" download grad={grad}>
                   <Download size={16} /> Download CV
@@ -2224,6 +2252,18 @@ export default function Portfolio() {
       ` }} />
       </main>
       <ScrollToTop mode={mode} />
+      
+      {toastMsg && (
+        <div style={{
+          position: "fixed", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 9999,
+          background: "rgba(10,10,16,0.9)", border: `1px solid ${theme.glassLine}`, borderRadius: 999,
+          padding: "12px 24px", color: C.hi, fontFamily: body, fontSize: 14, fontWeight: 600,
+          boxShadow: `0 10px 30px -10px ${theme.shadow}`, backdropFilter: "blur(10px)",
+          animation: "toastSlide 0.3s ease-out forwards"
+        }}>
+          {toastMsg}
+        </div>
+      )}
     </div>
   );
 }
