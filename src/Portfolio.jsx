@@ -9,7 +9,7 @@ import {
 
 const C = {
   bg: "#0B0915", bg2: "#100C1F",
-  hi: "#F6F4FF", mid: "#B7AFD6", low: "#6E6790",
+  hi: "#F6F4FF", mid: "#E2DFED", low: "#958FA8",
   line: "rgba(255,255,255,0.08)", glass: "rgba(255,255,255,0.045)",
   qa1: "#34E6C4", qa2: "#7C5CFF",
   fl1: "#FF7A59", fl2: "#FFC857",
@@ -82,7 +82,7 @@ function GlassCard({ children, style, hover = true, className = "" }) {
   return (
     <div className={`${hover ? "lift" : ""} ${className}`.trim()} style={{
       background: "var(--glass-surface)", border: "1px solid var(--glass-line)",
-      borderRadius: 20, backdropFilter: "blur(14px)", padding: 24, ...style,
+      borderRadius: 20, backdropFilter: "blur(14px)", padding: "var(--card-pad, 24px)", ...style,
     }}>{children}</div>
   );
 }
@@ -100,7 +100,7 @@ function RoleBackdrop({ theme, swapping }) {
       <div style={{
         position: "absolute", top: 128, left: "50%",
         transform: `translateX(-50%) ${swapping ? "scale(1.03)" : "scale(1)"}`,
-        fontFamily: display, fontWeight: 800, fontSize: "clamp(58px,11vw,150px)", letterSpacing: -5,
+        fontFamily: display, fontWeight: 800, fontSize: "clamp(36px,10vw,150px)", letterSpacing: -5,
         opacity: 0.06, textTransform: "uppercase", whiteSpace: "nowrap", userSelect: "none",
         transition: "transform .55s ease",
       }}>{theme.watermarkLabel}</div>
@@ -159,8 +159,8 @@ function ProjectCard({ icon, title, tags, desc, grad, status, githubUrl }) {
           }}>{status}</span>
         )}
       </div>
-      <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 19, color: C.hi, margin: 0 }}>{title}</h3>
-      <p style={{ color: C.mid, fontSize: 14, lineHeight: 1.65, margin: 0, flex: 1 }}>{desc}</p>
+      <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: "clamp(17px, 3.5vw, 19px)", color: C.hi, margin: 0 }}>{title}</h3>
+      <p style={{ color: C.mid, fontSize: "clamp(13.5px, 2.5vw, 14px)", lineHeight: 1.65, margin: 0, flex: 1 }}>{desc}</p>
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
         {tags.map((t, i) => (
           <span key={i} style={{ fontFamily: mono, fontSize: 10.5, color: C.mid, background: "rgba(255,255,255,0.05)", borderRadius: 6, padding: "3px 8px" }}>{t}</span>
@@ -195,7 +195,7 @@ function SkillPanel({ icon, title, grad, items }) {
     <GlassCard style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 36, height: 36, borderRadius: 10, display: "grid", placeItems: "center", background: `linear-gradient(135deg, ${grad[0]}30, ${grad[1]}18)`, color: grad[0] }}>{icon}</div>
-        <span style={{ fontFamily: display, fontWeight: 700, fontSize: 15.5, color: C.hi }}>{title}</span>
+        <span style={{ fontFamily: display, fontWeight: 700, fontSize: "clamp(14.5px, 2.5vw, 15.5px)", color: C.hi }}>{title}</span>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
         {items.map((it, i) => (
@@ -210,6 +210,7 @@ function MagButton({ children, href, primary, grad, onClick, small, download }) 
   const [t, setT] = useState({ x: 0, y: 0 });
   return (
     <a href={href} download={download} onClick={onClick} target={href?.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
+      className="btnPremium"
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         setT({ x: (e.clientX - r.left - r.width / 2) * 0.18, y: (e.clientY - r.top - r.height / 2) * 0.3 });
@@ -217,14 +218,16 @@ function MagButton({ children, href, primary, grad, onClick, small, download }) 
       onMouseLeave={() => setT({ x: 0, y: 0 })}
       style={{
         display: "inline-flex", alignItems: "center", gap: small ? 6 : 9, fontFamily: body, fontWeight: 700,
-        fontSize: small ? 13 : 14.5, padding: small ? "9px 16px" : "13px 24px",
-        borderRadius: 999, transition: "transform .15s ease", whiteSpace: "nowrap",
+        fontSize: small ? 13 : 14.5, 
+        padding: small ? "9px 16px" : "13px 24px",
+        borderRadius: 999, whiteSpace: "nowrap",
         transform: `translate(${t.x}px, ${t.y}px)`,
         background: primary ? `linear-gradient(95deg, ${grad[0]}, ${grad[1]})` : "transparent",
         color: primary ? "#0B0915" : C.hi,
         border: primary ? "none" : "1px solid var(--glass-line)",
         flexShrink: 0,
         cursor: "pointer",
+        ["--btnShadow"]: primary ? `${grad[0]}55` : "rgba(255,255,255,0.08)"
       }}>{children}</a>
   );
 }
@@ -661,7 +664,7 @@ function FreelanceCTA({ goTo }) {
             Tell me your business name and what you do - I'll design a free homepage mockup with no commitment and no payment. Just a real preview of what your site could look like.
           </p>
         </div>
-        <div style={{ flexShrink: 0 }}>
+        <div className="mockupBtnWrap" style={{ flexShrink: 0 }}>
           <MagButton onClick={() => setIsMockupOpen(v => !v)} primary grad={[C.fl1, C.fl2]}>
             Claim Free Mockup
           </MagButton>
@@ -1578,6 +1581,7 @@ export default function Portfolio() {
   const [roleSwapping, setRoleSwapping] = useState(false);
   const [swipeKey, setSwipeKey] = useState(0);
   const [toastMsg, setToastMsg] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
   const firstRender = useRef(true);
   useReveal();
   const scrolled = useScrolled();
@@ -1591,7 +1595,7 @@ export default function Portfolio() {
     surfaceTop: "rgba(52,230,196,0.12)", footerGlow: "rgba(124,92,255,0.08)",
     focus: C.qa1, shadow: "rgba(52,230,196,0.34)", navGlow: "rgba(52,230,196,0.16)",
     overlayTop: "rgba(52,230,196,0.14)", overlayA: "rgba(52,230,196,0.22)", overlayB: "rgba(124,92,255,0.16)",
-    glassSurface: "rgba(8,23,31,0.62)", glassLine: "rgba(52,230,196,0.18)",
+    glassSurface: "rgba(8,23,31,0.30)", glassLine: "rgba(52,230,196,0.18)",
     headerBg: "rgba(8,17,28,0.82)",
   } : {
     badge: "FREELANCE MODE", watermarkLabel: "FREELANCE DEV",
@@ -1600,7 +1604,7 @@ export default function Portfolio() {
     surfaceTop: "rgba(255,122,89,0.12)", footerGlow: "rgba(255,200,87,0.08)",
     focus: C.fl1, shadow: "rgba(255,122,89,0.34)", navGlow: "rgba(255,122,89,0.16)",
     overlayTop: "rgba(255,122,89,0.14)", overlayA: "rgba(255,122,89,0.22)", overlayB: "rgba(255,200,87,0.16)",
-    glassSurface: "rgba(36,18,12,0.66)", glassLine: "rgba(255,122,89,0.18)",
+    glassSurface: "rgba(36,18,12,0.30)", glassLine: "rgba(255,122,89,0.18)",
     headerBg: "rgba(26,14,10,0.84)",
   };
 
@@ -1611,6 +1615,12 @@ export default function Portfolio() {
       window.history.scrollRestoration = "manual";
     }
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => { if (window.scrollY > 40) setMenuOpen(false); };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const [flipState, setFlipState] = useState("idle");
@@ -1648,8 +1658,12 @@ export default function Portfolio() {
         setFlipState("idle");
         setRoleSwapping(false);
         document.documentElement.style.scrollBehavior = "";
-        setToastMsg(`Switched to ${next === 'qa' ? 'QA Engineer' : 'Web Developer'} Profile`);
-        setTimeout(() => setToastMsg(""), 3500);
+        setToastMsg(`Switched to ${next === 'qa' ? 'QA Engineer' : 'Freelance Developer'} Mode`);
+        setToastVisible(true);
+        setTimeout(() => {
+          setToastVisible(false);
+          setTimeout(() => setToastMsg(""), 450); // wait for exit animation
+        }, 2200);
       }, 500);
     }, 400);
   };
@@ -1670,7 +1684,13 @@ export default function Portfolio() {
 
   return (
     <div style={{
-      background: `radial-gradient(circle at 14% 0%, ${theme.overlayA}, transparent 30%), radial-gradient(circle at 88% 6%, ${theme.overlayB}, transparent 26%), linear-gradient(180deg, ${theme.pageBg1}, ${theme.pageBg2})`,
+      background: `
+        radial-gradient(circle at 10% 0%, ${theme.overlayA}, transparent 50%), 
+        radial-gradient(circle at 90% 10%, ${theme.overlayB}, transparent 50%), 
+        radial-gradient(circle at 85% 75%, ${theme.overlayA}, transparent 55%), 
+        radial-gradient(circle at 15% 85%, ${theme.overlayB}, transparent 55%), 
+        ${theme.pageBg1}
+      `,
       backgroundAttachment: "fixed",
       minHeight: "100vh", color: C.hi, fontFamily: body, position: "relative", overflowX: "hidden",
       ["--glass-surface"]: theme.glassSurface, ["--glass-line"]: theme.glassLine,
@@ -1712,8 +1732,11 @@ export default function Portfolio() {
         .reveal.in { opacity:1; transform:translateY(0); }
         .lift { transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
         .lift:hover { transform:translateY(-6px); border-color:rgba(255,255,255,0.18); box-shadow:0 20px 40px -20px ${theme.shadow}; }
-        .grid2 { display:grid; grid-template-columns:1fr 1fr;        gap:18px; }
-        .grid3 { display:grid; grid-template-columns:repeat(3,1fr);  gap:18px; }
+        
+        :root { --card-pad: 24px; --grid-gap: 18px; }
+        
+        .grid2 { display:grid; grid-template-columns:1fr 1fr;        gap:var(--grid-gap); }
+        .grid3 { display:grid; grid-template-columns:repeat(3,1fr);  gap:var(--grid-gap); }
         .statsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
         @media(max-width:880px){ .grid3{grid-template-columns:1fr 1fr;} .statsGrid{grid-template-columns:repeat(2,1fr);} }
         @media(max-width:640px){ .grid2,.grid3{grid-template-columns:1fr;} .statsGrid{grid-template-columns:repeat(2,1fr);} }
@@ -1724,10 +1747,20 @@ export default function Portfolio() {
         .switchBtn   { font-family:'Inter',sans-serif; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:none; cursor:pointer; display:flex; align-items:center; gap:7px; background:transparent; color:${C.mid}; transition:background .25s ease,color .25s ease,transform .25s ease,box-shadow .25s ease; }
         .switchBtn[aria-pressed="true"] { transform:translateY(-1px); box-shadow:0 12px 26px -18px ${theme.shadow}; }
         .navToggleBtn { padding:7px 9px!important; }
-        .navLink { transition:color .2s ease, background .2s ease; }
-        .navLink:hover { color:${C.hi}; background:rgba(255,255,255,0.06); }
-        .qaBoard { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; align-items:start; }
-        .qaStack { display:grid; gap:18px; }
+        .navLink { position: relative; transition: color .3s ease; }
+        .navLink::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: currentColor; transition: width .3s ease, opacity .3s ease; opacity: 0; border-radius: 2px; }
+        .navLink:hover { color:#FFF !important; background: transparent !important; }
+        .navLink:hover::after { width: 16px; opacity: 1; }
+        .btnPremium { transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; }
+        .btnPremium:hover { transform: translateY(-3px) !important; box-shadow: 0 15px 30px -12px var(--btnShadow, rgba(255,255,255,0.15)) !important; }
+        @media(max-width: 600px) {
+          :root { --card-pad: 18px; --grid-gap: 14px; }
+          .btnPremium { padding: 11px 20px !important; font-size: 13.5px !important; gap: 7px !important; }
+          .mockupBtnWrap { display: flex; justify-content: center; width: 100%; margin-top: 10px; }
+        }
+        .floatingNode { position: absolute; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(12px); animation: floaty 6s ease-in-out infinite; z-index: 10; color: #FFF; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
+        .qaBoard { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--grid-gap); align-items:start; }
+        .qaStack { display:grid; gap:var(--grid-gap); }
         html { scroll-behavior:smooth; }
         section[id] { scroll-margin-top:90px; }
         @media(max-width:760px){
@@ -1793,6 +1826,19 @@ export default function Portfolio() {
         .wizGrid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         @media(max-width:700px){ .wizGrid5{grid-template-columns:repeat(2,1fr);} .wizGrid4{grid-template-columns:repeat(2,1fr);} }
         @media(max-width:440px){ .wizGrid5{grid-template-columns:1fr 1fr;} }
+        @keyframes morph {
+          0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+          50% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+          100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+        @media(max-width: 900px) {
+          .heroGrid { display: flex !important; flex-direction: column !important; text-align: center !important; gap: 24px !important; }
+          .heroTextCol { text-align: center !important; }
+          .heroTextCol p { margin: 0 auto 24px !important; font-size: 15.5px !important; line-height: 1.6 !important; }
+          .heroBtns { justify-content: center !important; }
+          .heroImgCol { margin-top: 0px; }
+          .heroImgCol > div { width: 240px !important; height: 240px !important; }
+        }
       `}</style>
 
       {/* ── ambient layers ── */}
@@ -1809,7 +1855,7 @@ export default function Portfolio() {
         transition: "padding .35s ease",
       }}>
         <div style={{
-          width: "100%", maxWidth: scrolled ? 760 : 1140,
+          width: "100%", maxWidth: scrolled ? 820 : 1000,
           display: "flex", alignItems: "center", gap: 10,
           background: scrolled ? theme.headerBg : "rgba(10,10,16,0.30)",
           border: `1px solid ${scrolled ? theme.glassLine : "rgba(255,255,255,0.05)"}`,
@@ -1818,36 +1864,43 @@ export default function Portfolio() {
           boxShadow: scrolled ? `0 12px 30px -16px ${theme.navGlow}` : "none",
           transition: "all .35s ease",
         }}>
-          <a href="#top" onClick={goTo("top")} style={{ fontFamily: display, fontWeight: 800, fontSize: scrolled ? 16 : 18, transition: "font-size .35s ease", flexShrink: 0, textDecoration: "none" }}>
-            <GradText from={grad[0]} to={grad[1]} style={{ transition: "all 0.4s ease" }}>DV.</GradText>
-          </a>
+          {/* Logo - Left */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+            <a href="#top" onClick={goTo("top")} style={{ fontFamily: display, fontWeight: 800, fontSize: scrolled ? 16 : 18, transition: "font-size .35s ease", flexShrink: 0, textDecoration: "none" }}>
+              <GradText from={grad[0]} to={grad[1]} style={{ transition: "all 0.4s ease" }}>DV.</GradText>
+            </a>
+          </div>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: 2, marginLeft: 10, flex: 1 }} className="navLinksDesktop">
+          {/* Nav Links - Center */}
+          <nav style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }} className="navLinksDesktop">
             {navLinks.map((l) => (
               <a key={l.id} href={`#${l.id}`} onClick={goTo(l.id)} className="navLink" style={{ fontFamily: body, fontWeight: 600, fontSize: 13.5, color: C.mid, padding: "8px 13px", borderRadius: 999, whiteSpace: "nowrap" }}>{l.label}</a>
             ))}
           </nav>
 
-          <div style={{ flex: 1 }} className="navSpacerMobile" />
-          <div style={{ flex: 0.5 }} />
+          {/* Actions - Right */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10 }}>
+            {/* compact QA / Freelance toggle */}
+            <div className="switchWrap" style={{ display: "inline-flex", flexShrink: 0, padding: 3, opacity: scrolled ? 1 : 0.65, transition: "opacity .35s ease" }}>
+              <button className="switchBtn navToggleBtn" title="QA Engineer" aria-label="QA Engineer" aria-pressed={mode === "qa"} onClick={() => setRole("qa")} style={mode === "qa" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.qa1},${C.qa2})` } : {}}>
+                <TestTube2 size={13} />
+              </button>
+              <button className="switchBtn navToggleBtn" title="Freelance Dev" aria-label="Freelance Dev" aria-pressed={mode === "freelance"} onClick={() => setRole("freelance")} style={mode === "freelance" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.fl1},${C.fl2})` } : {}}>
+                <Code2 size={13} />
+              </button>
+            </div>
 
-          {/* compact QA / Freelance toggle — visible always, prominent when scrolled */}
-          <div className="switchWrap" style={{ display: "inline-flex", flexShrink: 0, padding: 3, marginRight: 8, opacity: scrolled ? 1 : 0.65, transition: "opacity .35s ease" }}>
-            <button className="switchBtn navToggleBtn" title="QA Engineer" aria-label="QA Engineer" aria-pressed={mode === "qa"} onClick={() => setRole("qa")} style={mode === "qa" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.qa1},${C.qa2})` } : {}}>
-              <TestTube2 size={13} />
-            </button>
-            <button className="switchBtn navToggleBtn" title="Freelance Dev" aria-label="Freelance Dev" aria-pressed={mode === "freelance"} onClick={() => setRole("freelance")} style={mode === "freelance" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.fl1},${C.fl2})` } : {}}>
-              <Code2 size={13} />
+            <MagButton href={`#${contactId}`} onClick={goTo(contactId)} primary grad={grad} small>
+              <Mail size={14} /> Hire me
+            </MagButton>
+
+            <button onClick={() => setMenuOpen((v) => !v)} className="hamburger" aria-label={menuOpen ? "Close menu" : "Open menu"} style={{ display: "none", width: 44, height: 44, borderRadius: 999, border: `1px solid ${C.line}`, background: "rgba(255,255,255,0.04)", color: C.hi, alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer" }}>
+              <div style={{ position: "relative", width: 20, height: 20 }}>
+                <Menu size={20} style={{ position: "absolute", top: 0, left: 0, transition: "transform .35s ease, opacity .35s ease", transform: menuOpen ? "rotate(90deg)" : "rotate(0deg)", opacity: menuOpen ? 0 : 1 }} />
+                <X size={20} style={{ position: "absolute", top: 0, left: 0, transition: "transform .35s ease, opacity .35s ease", transform: menuOpen ? "rotate(0deg)" : "rotate(-90deg)", opacity: menuOpen ? 1 : 0 }} />
+              </div>
             </button>
           </div>
-
-          <MagButton href={`#${contactId}`} onClick={goTo(contactId)} primary grad={grad} small>
-            <Mail size={14} /> Hire me
-          </MagButton>
-
-          <button onClick={() => setMenuOpen((v) => !v)} className="hamburger" aria-label={menuOpen ? "Close menu" : "Open menu"} style={{ display: "none", width: 38, height: 38, borderRadius: 999, border: `1px solid ${C.line}`, background: "rgba(255,255,255,0.04)", color: C.hi, alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer" }}>
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
 
         {menuOpen && (
@@ -1863,31 +1916,68 @@ export default function Portfolio() {
 
       <main className={`flip-wrapper ${flipState === "out" ? "flip-out" : flipState === "in" ? "flip-in" : ""}`}>
         {/* ══ HERO ══════════════════════════════════════════════════ */}
-        <section style={{ maxWidth: 1140, margin: "0 auto", padding: "78px 24px 50px", position: "relative", zIndex: 1 }}>
-          <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto" }}>
-            <div style={{ marginBottom: 16 }}>
-              <Chip grad={grad}>{theme.badge} {mode === "qa" ? "· Interning @ SoftwarePlus Pvt Ltd " : ""}· Sri Lanka</Chip>
+        <section style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "clamp(60px, 10vw, 100px) 0 clamp(40px, 8vw, 60px)", position: "relative", zIndex: 1 }}>
+          <div className="heroGrid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "clamp(32px, 5vw, 64px)", alignItems: "center" }}>
+            
+            {/* TEXT COLUMN (Left) */}
+            <div style={{ textAlign: "left", paddingLeft: "clamp(0px, 4vw, 48px)" }} className="heroTextCol">
+              <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(30px,7vw,76px)", lineHeight: 1.05, letterSpacing: -1.5, margin: "0 0 20px", color: "#FFF" }}>
+                Hi, I'm Deshanth <br />
+                {mode === "qa" 
+                  ? <>Software <GradText from={grad[0]} to={grad[1]}>Quality Assurance</GradText> Engineer.</>
+                  : <>Freelance <GradText from={grad[0]} to={grad[1]}>Web Developer.</GradText></>
+                }
+              </h1>
+              <p style={{ color: C.mid, fontSize: "clamp(15px, 3.5vw, 18px)", lineHeight: 1.7, margin: "0", maxWidth: 640 }}>
+                {mode === "qa"
+                  ? "Final-year Network & Mobile Computing undergraduate passionate about Software Quality Assurance. I specialize in manual testing, test automation, and API testing while building web applications as a freelance developer."
+                  : "Freelance web developer who builds responsive interfaces, API-driven features, and full-stack systems while keeping a QA mindset throughout the product lifecycle."}
+              </p>
             </div>
-            <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(40px,6.4vw,70px)", lineHeight: 1.04, letterSpacing: -1.5, margin: "0 0 18px" }}>
-              Hi, I'm Deshanth <br />
-              <GradText from={grad[0]} to={grad[1]}>{mode === "qa" ? "Aspiring Software Quality Assurance Engineer." : "Freelance Web Developer."}</GradText>
-            </h1>
-            <p style={{ color: C.mid, fontSize: 18, lineHeight: 1.7, margin: "0 auto 32px", maxWidth: 560 }}>
-              {mode === "qa"
-                ? "Final-year Network & Mobile Computing undergraduate passionate about Software Quality Assurance. I specialize in manual testing, test automation, and API testing while building web applications as a freelance developer."
-                : "Freelance web developer who builds responsive interfaces, API-driven features, and full-stack systems while keeping a QA mindset throughout the product lifecycle."}
-            </p>
-            <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-              <MagButton href="#projects" onClick={goTo("projects")} primary grad={grad}><Rocket size={16} /> See my work</MagButton>
-              <MagButton href="mailto:hello.deshanth@gmail.com" grad={grad}><Mail size={16} /> Email Me</MagButton>
-              {mode === "qa" && (
-                <MagButton href="/Vishvalingam Deshanth.pdf" download grad={grad}>
-                  <Download size={16} /> Download CV
-                </MagButton>
-              )}
+
+            {/* IMAGE COLUMN (Right) */}
+            <div className="heroImgCol" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
+              
+              {/* Image & Pedestal Container */}
+              <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+                {/* Glass Pedestal Anchoring */}
+                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -40%)", width: "clamp(240px, 60vw, 340px)", height: "clamp(240px, 60vw, 340px)", background: "radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(20px)", zIndex: -1 }} />
+                
+                <div style={{ position: "relative" }}>
+                  <div style={{ width: "clamp(200px, 60vw, 280px)", height: "clamp(200px, 60vw, 280px)", padding: 6, background: `linear-gradient(135deg,${grad[0]},${grad[1]})`, animation: "morph 8s ease-in-out infinite", position: "relative", zIndex: 2, boxShadow: `0 20px 50px -20px ${grad[0]}66` }}>
+                    <div style={{ width: "100%", height: "100%", overflow: "hidden", background: C.bg2, animation: "morph 8s ease-in-out infinite" }}>
+                      <img src="/profile.jpeg" alt="Deshanth Vishvalingam" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                  </div>
+
+                  {/* Floating Tech Nodes (Signature Element) */}
+                  <div className="floatingNode" style={{ top: -10, left: -20, width: 48, height: 48, animationDelay: "0s" }}>
+                    {mode === "qa" ? <Bug size={20} color={grad[0]} /> : <Code2 size={20} color={grad[0]} />}
+                  </div>
+                  <div className="floatingNode" style={{ top: 40, right: -25, width: 56, height: 56, animationDelay: "1.5s", backdropFilter: "blur(16px)" }}>
+                    {mode === "qa" ? <CheckCircle2 size={24} color={grad[1]} /> : <Zap size={24} color={grad[1]} />}
+                  </div>
+                  <div className="floatingNode" style={{ bottom: 20, left: -10, width: 44, height: 44, animationDelay: "3s" }}>
+                    {mode === "qa" ? <TestTube2 size={18} color="#FFF" /> : <Layers size={18} color="#FFF" />}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons (Moved under profile image) */}
+              <div className="heroBtns" style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 10 }}>
+                <MagButton href="#projects" onClick={goTo("projects")} primary grad={grad}><Rocket size={16} /> See my work</MagButton>
+                <MagButton href="mailto:hello.deshanth@gmail.com" grad={grad}><Mail size={16} /> Email Me</MagButton>
+                {mode === "qa" && (
+                  <MagButton href="/Vishvalingam Deshanth.pdf" download grad={grad}>
+                    <Download size={16} /> Download CV
+                  </MagButton>
+                )}
+              </div>
+
             </div>
+
           </div>
-          <div className="grid3" style={{ marginTop: 64 }}>
+          <div className="grid3" style={{ marginTop: 84 }}>
             {(mode === "qa" ? [
               { n: "40%", l: "Faster regression cycles", icon: <Clock size={18} /> },
               { n: "0", l: "Critical bugs leaked", icon: <CheckCircle2 size={18} /> },
@@ -1907,25 +1997,17 @@ export default function Portfolio() {
         </section>
 
         {/* ══ ABOUT ═════════════════════════════════════════════════ */}
-        <section id="about" className="reveal" style={{ maxWidth: 1140, margin: "0 auto", padding: "30px 24px 70px", position: "relative", zIndex: 1 }}>
-          <GlassCard className="aboutGrid" style={{ display: "grid", gridTemplateColumns: "210px 1fr", gap: 32, padding: 32 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 170, height: 170, borderRadius: "32% 68% 65% 35% / 45% 35% 65% 55%", padding: 4, background: `linear-gradient(135deg,${C.qa1},${C.qa2},${C.fl1})`, animation: "spinSlow 18s linear infinite" }}>
-                <div style={{ width: "100%", height: "100%", borderRadius: "32% 68% 65% 35% / 45% 35% 65% 55%", overflow: "hidden", background: C.bg2 }}>
-                  <img src="/profile.jpeg" alt="Deshanth Vishvalingam" style={{ width: "100%", height: "100%", objectFit: "cover", animation: "spinSlow 18s linear infinite reverse" }} />
-                </div>
-              </div>
-              <Chip grad={grad}>Open to opportunities</Chip>
-            </div>
-            <div>
+        <section id="about" className="reveal" style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "30px 0 70px", position: "relative", zIndex: 1 }}>
+          <GlassCard style={{ display: "flex", flexDirection: "column", gap: 24, padding: "40px 5vw", textAlign: "center" }}>
+            <div style={{ margin: "0 auto", maxWidth: 800 }}>
               <span style={{ fontFamily: mono, fontSize: 12, color: grad[0], letterSpacing: 1 }}>ABOUT ME</span>
-              <h2 style={{ fontFamily: display, fontWeight: 700, fontSize: 28, margin: "8px 0 14px" }}>Committed to building reliable software.</h2>
+              <h2 style={{ fontFamily: display, fontWeight: 700, fontSize: "clamp(26px,4vw,34px)", margin: "8px 0 18px" }}>Committed to building reliable software.</h2>
               {mode === "qa" ? (
                 <>
                   <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 14px" }}>
                     I'm a final-year undergraduate specializing in Software Quality Assurance. I enjoy diving into systems, finding edge cases, and ensuring that software works exactly as intended before it reaches users. I have a solid understanding of test design, defect tracking, and both manual and automated testing processes.
                   </p>
-                  <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 18px" }}>
+                  <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 24px" }}>
                     Currently working as a QA Intern at <span style={{ color: C.hi, fontWeight: 600 }}>SoftwarePlus Pvt Ltd</span>, I help test web application modules within Agile sprint cycles. Since I also do freelance web development, I have a good grasp of how applications are built under the hood, which helps me write better, more targeted tests.
                   </p>
                 </>
@@ -1934,7 +2016,7 @@ export default function Portfolio() {
                   <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 14px" }}>
                     I'm a freelance web developer who enjoys building clean, functional, and responsive websites for small businesses and independent creators. Whether it's a simple landing page or a custom web app, I focus on writing maintainable code and creating a smooth experience for the end-user.
                   </p>
-                  <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 18px" }}>
+                  <p style={{ color: C.mid, fontSize: 15.5, lineHeight: 1.8, margin: "0 0 24px" }}>
                     My background in Software Quality Assurance means I test my work thoroughly as I build it. I try to anticipate edge cases and fix bugs early, so the websites I deliver are stable and reliable from day one.
                   </p>
                 </>
@@ -1949,7 +2031,7 @@ export default function Portfolio() {
         </section>
 
         {/* ══ MODE TOGGLE ═══════════════════════════════════════════ */}
-        <section className="reveal" style={{ maxWidth: 1140, margin: "0 auto", padding: "0 24px 50px", position: "relative", zIndex: 1 }}>
+        <section className="reveal" style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "0 0 50px", position: "relative", zIndex: 1 }}>
           <div style={{ textAlign: "center" }}>
             <p style={{ color: C.hi, opacity: 0.85, fontSize: 14, fontFamily: body, marginBottom: 18, letterSpacing: 0.3 }}>
               Switch between QA and Freelance to see matching skills, experience &amp; projects
@@ -1966,7 +2048,7 @@ export default function Portfolio() {
         </section>
 
         {/* ══ SKILLS ════════════════════════════════════════════════ */}
-        <section id="work" className="reveal" style={{ maxWidth: 1140, margin: "0 auto", padding: "10px 24px 60px", position: "relative", zIndex: 1 }}>
+        <section id="work" className="reveal" style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "10px 0 60px", position: "relative", zIndex: 1 }}>
           <div style={{ marginBottom: 26 }}>
             <span style={{ fontFamily: mono, fontSize: 12, color: grad[0], letterSpacing: 1 }}>{mode === "qa" ? "QA TOOLKIT" : "DEV TOOLKIT"}</span>
             <h2 style={{ fontFamily: display, fontWeight: 700, fontSize: "clamp(24px,3.2vw,34px)", margin: "8px 0 0" }}>
@@ -2006,10 +2088,6 @@ export default function Portfolio() {
                 <SkillPanel icon={<TestTube2 size={17} />} title="Automation Testing" grad={[C.qa1, C.qa2]} items={["Selenium WebDriver", "TestNG", "Page Object Model", "Maven", "ExtentReports (HTML reporting)", "Assertions"]} />
                 <SkillPanel icon={<Workflow size={17} />} title="API Testing" grad={[C.qa1, C.qa2]} items={["Postman", "Newman CLI", "REST APIs", "JSON validation", "API chaining", "Status code validation", "Response assertion"]} />
                 <SkillPanel icon={<GitBranch size={17} />} title="CI/CD & Tools" grad={[C.qa1, C.qa2]} items={["Git & GitHub", "GitHub Actions", "Jenkins (learning)", "Linux basics"]} />
-                <GlassCard style={{ display: "flex", alignItems: "center", gap: 14, padding: 18 }}>
-                  <div style={{ width: 42, height: 42, borderRadius: 13, display: "grid", placeItems: "center", background: `${C.qa1}14`, border: `1px solid ${C.qa1}24`, color: C.qa1, flexShrink: 0 }}><Quote size={18} /></div>
-                  <p style={{ color: C.mid, fontSize: 13.5, fontStyle: "italic", margin: 0, lineHeight: 1.6 }}>"A bug found in testing costs minutes. A bug found in production costs trust."</p>
-                </GlassCard>
               </div>
             </div>
           ) : (
@@ -2025,13 +2103,13 @@ export default function Portfolio() {
         </section>
 
         {/* ══ EXPERIENCE ════════════════════════════════════════════ */}
-        <section id="experience" className="reveal" style={{ maxWidth: 1140, margin: "0 auto", padding: "10px 24px 60px", position: "relative", zIndex: 1 }}>
+        <section id="experience" className="reveal" style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "10px 0 60px", position: "relative", zIndex: 1 }}>
           {mode === "qa" ? (
             <>
               <div style={{ marginBottom: 18 }}>
                 <span style={{ fontFamily: mono, fontSize: 12, color: grad[0], letterSpacing: 1 }}>PROFESSIONAL EXPERIENCE</span>
               </div>
-              <GlassCard style={{ display: "flex", gap: 22, alignItems: "flex-start", flexWrap: "wrap", padding: 30 }}>
+              <GlassCard style={{ display: "flex", gap: 22, alignItems: "flex-start", flexWrap: "wrap", textAlign: "left" }}>
                 <div style={{ width: 52, height: 52, borderRadius: 14, flexShrink: 0, display: "grid", placeItems: "center", background: `linear-gradient(135deg,${C.qa1}30,${C.qa2}18)`, color: C.qa1 }}><Boxes size={24} /></div>
                 <div style={{ flex: 1, minWidth: 260 }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
@@ -2043,7 +2121,7 @@ export default function Portfolio() {
               </GlassCard>
             </>
           ) : (
-            <GlassCard style={{ display: "flex", gap: 22, alignItems: "flex-start", flexWrap: "wrap", padding: 30 }}>
+            <GlassCard style={{ display: "flex", gap: 22, alignItems: "flex-start", flexWrap: "wrap", textAlign: "left" }}>
               <div style={{ width: 52, height: 52, borderRadius: 14, flexShrink: 0, display: "grid", placeItems: "center", background: `linear-gradient(135deg,${C.fl1}30,${C.fl2}18)`, color: C.fl1 }}><Code2 size={24} /></div>
               <div style={{ flex: 1, minWidth: 260 }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
@@ -2101,7 +2179,7 @@ export default function Portfolio() {
         {/* <Testimonials mode={mode} /> */}
         {/* ══ CONTACT — WEB DEV ══════════════════════════════════════ */}
         <section id="contact-web" className="reveal" style={{
-          maxWidth: 1140, margin: "0 auto", padding: "10px 24px 90px",
+          maxWidth: 1600, width: "92%", margin: "0 auto", padding: "10px 0 90px",
           position: "relative", zIndex: 1,
           display: mode === "freelance" ? "block" : "none",
           textAlign: "left",
@@ -2153,7 +2231,7 @@ export default function Portfolio() {
 
         {/* ══ CONTACT — QA ═══════════════════════════════════════════ */}
         <section id="contact-qa" className="reveal" style={{
-          maxWidth: 1140, margin: "0 auto", padding: "10px 24px 90px",
+          maxWidth: 1600, width: "92%", margin: "0 auto", padding: "10px 0 90px",
           position: "relative", zIndex: 1,
           display: mode === "qa" ? "block" : "none",
           textAlign: "left",
@@ -2249,6 +2327,8 @@ export default function Portfolio() {
         .wizFwd { animation: wizSlideFwd 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
         .wizBwd { animation: wizSlideBwd 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
         @keyframes wizSlideFwd { 0% { opacity: 0; transform: translateX(30px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes toastSlideUp { 0% { opacity: 0; transform: translate(-50%, 40px) scale(0.9); } 100% { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+        @keyframes toastSlideDown { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, 40px) scale(0.9); } }
       ` }} />
       </main>
       <ScrollToTop mode={mode} />
@@ -2256,11 +2336,12 @@ export default function Portfolio() {
       {toastMsg && (
         <div style={{
           position: "fixed", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 9999,
-          background: "rgba(10,10,16,0.9)", border: `1px solid ${theme.glassLine}`, borderRadius: 999,
-          padding: "12px 24px", color: C.hi, fontFamily: body, fontSize: 14, fontWeight: 600,
-          boxShadow: `0 10px 30px -10px ${theme.shadow}`, backdropFilter: "blur(10px)",
-          animation: "toastSlide 0.3s ease-out forwards"
+          background: "var(--glass-surface)", border: `1px solid var(--glass-line)`, borderRadius: 999,
+          padding: "14px 28px", color: C.hi, fontFamily: body, fontSize: 14.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 10,
+          boxShadow: `0 20px 40px -10px ${theme.shadow}`, backdropFilter: "blur(18px)",
+          animation: toastVisible ? "toastSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards" : "toastSlideDown 0.4s cubic-bezier(0.22,1,0.36,1) forwards"
         }}>
+          <Sparkles size={16} style={{ color: mode === "qa" ? C.qa1 : C.fl1 }} />
           {toastMsg}
         </div>
       )}
