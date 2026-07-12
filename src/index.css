@@ -242,6 +242,23 @@ code {
   }
 }
 
+.qa-wizard-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .qa-wizard-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .qa-sidebar {
+    order: 2;
+  }
+}
+
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
@@ -259,4 +276,26 @@ code {
 }
 .mockup-inner {
   overflow: hidden;
+}
+
+/* ── RESPONSIVE PADDING UTILITIES ── */
+.responsive-pad {
+  padding: 32px 36px !important;
+}
+.responsive-card {
+  padding: 30px !important;
+}
+.responsive-pad-lg {
+  padding: 40px !important;
+}
+@media (max-width: 600px) {
+  .responsive-pad {
+    padding: 24px 20px !important;
+  }
+  .responsive-card {
+    padding: 20px !important;
+  }
+  .responsive-pad-lg {
+    padding: 24px 20px !important;
+  }
 }

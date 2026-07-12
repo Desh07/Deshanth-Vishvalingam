@@ -4,7 +4,8 @@ import {
   Code2, Bug, Workflow, Database, GitBranch, Smartphone, Layers, Boxes,
   Quote, Wand2, Rocket, Menu, X, ChevronLeft, ChevronRight,
   Utensils, ShoppingBag, Scissors, Building2, CheckCircle2, Clock, Zap, Star,
-  ImagePlus, Download, ExternalLink, Loader2, MessageSquare, HelpCircle, ArrowUp
+  ImagePlus, Download, ExternalLink, Loader2, MessageSquare, HelpCircle, ArrowUp,
+  Globe, FileText, ShoppingCart, Briefcase, Calendar, RefreshCw, Wrench, Monitor, Cloud
 } from "lucide-react";
 
 const C = {
@@ -484,10 +485,19 @@ function WhatYouGet() {
 /* ── MockupForm ────────────────────────────────────────────── */
 function MockupForm({ isOpen, onClose }) {
   const [status, setStatus] = useState("idle");
+  const [refId, setRefId] = useState("");
   const [form, setForm] = useState({ name: "", email: "", bizName: "", category: "", describe: "", existingUrl: "", style: "Modern", refs: "" });
   const [errors, setErrors] = useState({});
   const formRef = useRef(null);
   const nameRef = useRef(null);
+
+  useEffect(() => {
+    if (status === "success") {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [status]);
 
   useEffect(() => {
     if (isOpen) {
@@ -518,17 +528,65 @@ function MockupForm({ isOpen, onClose }) {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStatus("sending");
-    await new Promise(r => setTimeout(r, 1200));
-    setStatus("success");
+    try {
+      const generatedRef = `MOCKUP-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      setRefId(generatedRef);
+      
+      const emailBody = `
+=========================================
+REFERENCE ID: ${generatedRef}
+DATE: ${new Date().toLocaleString()}
+=========================================
+
+CLIENT DETAILS
+-----------------------------------------
+Name:          ${form.name}
+Email:         ${form.email}
+Business Name: ${form.bizName || "Not specified"}
+
+PROJECT SCOPE (FREE MOCKUP)
+-----------------------------------------
+Category:      ${form.category || "None"}
+Style Pref:    ${form.style || "Modern"}
+Existing URL:  ${form.existingUrl || "None provided"}
+
+PROJECT DESCRIPTION
+-----------------------------------------
+${form.describe}
+
+REFERENCE WEBSITES
+-----------------------------------------
+${form.refs || "None provided"}
+`.trim();
+
+      const payload = {
+        service_id: 'service_iubln6c',
+        template_id: 'template_8w9mhuh',
+        user_id: 'vKomMY0Ucy8yxdOAP',
+        template_params: {
+          name: form.name,
+          email: form.email,
+          message: emailBody
+        }
+      };
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("EmailJS Error");
+      setStatus("success");
+    } catch { setStatus("error"); }
   };
 
   if (status === "success") {
     return (
-      <div ref={formRef} style={{ padding: 40, background: "rgba(255,255,255,0.03)", borderRadius: 20, border: `1px solid ${C.line}`, textAlign: "center", marginTop: 24, marginBottom: 24 }}>
+      <div ref={formRef} className="responsive-pad-lg" style={{ background: "rgba(255,255,255,0.03)", borderRadius: 20, border: `1px solid ${C.line}`, textAlign: "center", marginTop: 24, marginBottom: 24 }}>
         <div style={{ display: "inline-flex", padding: 16, borderRadius: "50%", background: "rgba(52,230,196,0.1)", color: "#34E6C4", marginBottom: 16 }}>
           <CheckCircle2 size={36} />
         </div>
-        <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 24, color: C.hi, margin: "0 0 12px" }}>✅ Mockup Request Received</h3>
+        <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 24, color: C.hi, margin: "0 0 8px" }}>Mockup Request Received</h3>
+        <p style={{ fontFamily: mono, fontSize: 12, color: C.fl1, margin: "0 0 16px", letterSpacing: 0.5 }}>Reference ID: {refId}</p>
         <p style={{ fontFamily: body, color: C.mid, fontSize: 15, margin: "0 auto 16px", maxWidth: 400, lineHeight: 1.6 }}>
           Thank you! I'll review your business and contact you using the email you provided.
         </p>
@@ -546,7 +604,7 @@ function MockupForm({ isOpen, onClose }) {
   }
 
   return (
-    <div ref={formRef} style={{ marginTop: 24, marginBottom: 24, padding: "32px 36px", background: "rgba(255,255,255,0.02)", borderRadius: 20, border: `1px solid ${C.line}` }}>
+    <div ref={formRef} className="responsive-pad" style={{ marginTop: 24, marginBottom: 24, background: "rgba(255,255,255,0.02)", borderRadius: 20, border: `1px solid ${C.line}` }}>
       <div style={{ marginBottom: 26, textAlign: "center" }}>
         <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 22, color: C.hi, margin: "0 0 8px" }}>Claim Free Mockup</h3>
         <p style={{ fontFamily: body, color: C.mid, fontSize: 14.5, margin: "0 auto 16px", maxWidth: 400 }}>I'll design a free homepage concept tailored to your business.</p>
@@ -645,13 +703,21 @@ function MockupForm({ isOpen, onClose }) {
 /* ── FreelanceCTA banner ────────────────────────────────────── */
 function FreelanceCTA({ goTo }) {
   const [isMockupOpen, setIsMockupOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const handleClose = () => {
+    setIsMockupOpen(false);
+    setTimeout(() => {
+      containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 10);
+  };
 
   return (
     <div style={{ marginBottom: 52 }}>
-      <div style={{
+      <div ref={containerRef} className="responsive-pad" style={{
         borderRadius: 20, overflow: "hidden", position: "relative",
         background: "linear-gradient(135deg, rgba(255,122,89,0.12), rgba(255,200,87,0.08))",
-        border: "1px solid rgba(255,122,89,0.22)", padding: "32px 36px",
+        border: "1px solid rgba(255,122,89,0.22)",
         display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 32, flexWrap: "wrap",
       }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,200,87,0.18), transparent 70%)", pointerEvents: "none" }} />
@@ -673,7 +739,7 @@ function FreelanceCTA({ goTo }) {
 
       <div className={`mockup-wrapper ${isMockupOpen ? "open" : ""}`}>
         <div className="mockup-inner">
-          <MockupForm isOpen={isMockupOpen} onClose={() => setIsMockupOpen(false)} />
+          <MockupForm isOpen={isMockupOpen} onClose={handleClose} />
         </div>
       </div>
     </div>
@@ -713,32 +779,47 @@ function WebDevWizard() {
   const [animKey, setAK] = useState(0);
   const [form, setForm] = useState({
     name: "", email: "", brand: "",
-    projectType: "",
-    features: [],
-    budget: "", timeline: "", description: "",
+    projectType: "", industry: "",
+    budget: "", timeline: "",
+    features: [], contentAssets: [], references: "", description: ""
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null); // null | sending | success | error
+  const [refId, setRefId] = useState("");
+
+  useEffect(() => {
+    if (status === "success") {
+      const el = document.getElementById("web-wizard-success");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const pct = Math.round((step / STEPS) * 100);
 
   const PROJECT_TYPES = [
-    { v: "business", emoji: "🌐", label: "Business Website", desc: "For companies & services" },
-    { v: "ecommerce", emoji: "🛒", label: "E-commerce", desc: "Online store & payments" },
-    { v: "portfolio", emoji: "💼", label: "Portfolio", desc: "Personal brand showcase" },
-    { v: "webapp", emoji: "🚀", label: "Web Application", desc: "Custom interactive platform" },
-    { v: "landing", emoji: "📄", label: "Landing Page", desc: "Marketing or product page" },
+    { v: "business", icon: <Globe size={24} />, label: "Business Website" },
+    { v: "landing", icon: <FileText size={24} />, label: "Landing Page" },
+    { v: "ecommerce", icon: <ShoppingCart size={24} />, label: "E-commerce Store" },
+    { v: "portfolio", icon: <Briefcase size={24} />, label: "Portfolio Website" },
+    { v: "booking", icon: <Calendar size={24} />, label: "Booking / Appointment" },
+    { v: "webapp", icon: <Rocket size={24} />, label: "Web Application" },
+    { v: "redesign", icon: <RefreshCw size={24} />, label: "Website Redesign" },
+    { v: "maintenance", icon: <Wrench size={24} />, label: "Website Maintenance" },
+    { v: "unsure", icon: <HelpCircle size={24} />, label: "Not Sure Yet" },
   ];
-  const FEATURES = ["Authentication System", "Payment Integration", "Admin Dashboard", "Database Integration", "API Integration", "Responsive Design", "SEO Optimization"];
-  const BUDGETS = [{ v: "under100", l: "Under $100" }, { v: "100-300", l: "$100 – $300" }, { v: "300-600", l: "$300 – $600" }, { v: "discuss", l: "To be discussed" }];
-  const TIMELINES = [{ v: "lt1m", l: "< 1 Month" }, { v: "1-3m", l: "1–3 Months" }, { v: "gt3m", l: "3+ Months" }, { v: "nd", l: "Not decided" }];
+  const INDUSTRIES = ["Restaurant", "Healthcare", "Education", "Real Estate", "Technology", "Finance", "Fashion", "Travel", "Construction", "Personal Brand", "Other"];
+  const FEATURES = ["Contact Form", "Booking System", "Online Payments", "Blog", "CMS", "Admin Dashboard", "User Login", "Google Maps", "Animations", "SEO", "Multi-language", "Dark Mode", "Analytics", "Newsletter", "Other"];
+  const BUDGETS = [{ v: "under300", l: "Under $300" }, { v: "300-500", l: "$300-$500" }, { v: "500-1000", l: "$500-$1000" }, { v: "1000-3000", l: "$1000-$3000" }, { v: "3000+", l: "$3000+" }, { v: "discuss", l: "Let's Discuss" }];
+  const TIMELINES = [{ v: "asap", l: "ASAP" }, { v: "2w", l: "Within 2 Weeks" }, { v: "1m", l: "Within 1 Month" }, { v: "1-3m", l: "1-3 Months" }, { v: "flex", l: "Flexible" }];
+  const CONTENT_OPTS = ["Logo", "Brand Colors", "Images", "Written Content", "Domain", "Hosting", "None Yet"];
+  const CONTACT_OPTS = ["Email", "WhatsApp", "Phone", "Google Meet"];
 
   const LABELS = [
     null,
-    { title: "Let's get to know each other", sub: "Let's start with the basics" },
-    { title: "Tell me about your idea", sub: "What kind of digital product do you need?" },
-    { title: "What should your website include?", sub: "Select everything your project should include" },
-    { title: "Project scope & expectations", sub: "Budget, timeline & anything else you want me to know" },
+    { title: "Let's get to know each other", sub: "Step 1 — About You" },
+    { title: "What would you like to build?", sub: "Step 2 — Your Project" },
+    { title: "Tell me the details", sub: "Step 3 — Requirements" },
+    { title: "Review & Submit", sub: "Step 4 — Final Check" }
   ];
 
   const validate = () => {
@@ -748,8 +829,8 @@ function WebDevWizard() {
       if (!form.email.trim()) e.email = "Email is required.";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email.";
     }
-    if (step === 2 && !form.projectType) e.projectType = "Please pick a project type.";
-    if (step === 4 && !form.description.trim()) e.description = "Project description is required.";
+    if (step === 2 && !form.projectType) e.projectType = "Please select what you want to build.";
+    if (step === 3 && !form.description.trim()) e.description = "Project description is required.";
     return e;
   };
 
@@ -775,6 +856,41 @@ function WebDevWizard() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStatus("sending");
     try {
+      const generatedRef = `WEB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      setRefId(generatedRef);
+      const emailBody = `
+=========================================
+REFERENCE ID: ${generatedRef}
+DATE: ${new Date().toLocaleString()}
+=========================================
+
+CLIENT DETAILS
+-----------------------------------------
+Name:          ${form.name}
+Email:         ${form.email}
+Company/Brand: ${form.brand || "Not specified"}
+Industry:      ${form.industry || "Not specified"}
+
+PROJECT SCOPE
+-----------------------------------------
+Project Type:  ${PROJECT_TYPES.find(p => p.v === form.projectType)?.label || form.projectType}
+Budget:        ${BUDGETS.find(b => b.v === form.budget)?.l || form.budget}
+Timeline:      ${TIMELINES.find(t => t.v === form.timeline)?.l || form.timeline}
+
+REQUIREMENTS
+-----------------------------------------
+Features:      ${form.features.length ? form.features.join(", ") : "None specified"}
+Assets:        ${form.contentAssets.length ? form.contentAssets.join(", ") : "None yet"}
+
+PROJECT DESCRIPTION
+-----------------------------------------
+${form.description}
+
+REFERENCE WEBSITES
+-----------------------------------------
+${form.references || "None provided"}
+`.trim();
+
       const payload = {
         service_id: 'service_iubln6c',
         template_id: 'template_8w9mhuh',
@@ -782,13 +898,8 @@ function WebDevWizard() {
         template_params: {
           name: form.name,
           email: form.email,
-          brand: form.brand || "N/A",
-          projectType: PROJECT_TYPES.find(p => p.v === form.projectType)?.label || form.projectType,
-          features: form.features.length ? form.features.join(", ") : "None",
-          budget: BUDGETS.find(b => b.v === form.budget)?.l || form.budget,
-          timeline: TIMELINES.find(t => t.v === form.timeline)?.l || form.timeline,
-          description: form.description,
-          time: new Date().toLocaleString()
+          message: emailBody,
+          // Sending exactly what was asked. The template will only use {{message}} now.
         }
       };
       const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -806,10 +917,9 @@ function WebDevWizard() {
       setTimeout(() => {
         const el = document.getElementById("web-wizard-form");
         if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY - 100;
-          window.scrollTo({ top, behavior: "smooth" });
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-      }, 50);
+      }, 100);
     }
   }, [status]);
 
@@ -822,7 +932,7 @@ function WebDevWizard() {
     : null;
 
   /* ── Selectable card helper ── */
-  const SelCard = ({ val, field, emoji, label, desc, big }) => {
+  const SelCard = ({ val, field, icon, label, desc, big }) => {
     const on = form[field] === val;
     const cl = big ? `selCard${on ? " on" : ""}` : `selCardSm${on ? " on" : ""}`;
     return (
@@ -830,10 +940,14 @@ function WebDevWizard() {
         border: `1.5px solid ${on ? C.fl1 : "rgba(255,255,255,0.09)"}`,
         background: on ? `${C.fl1}12` : "rgba(255,255,255,0.03)",
         boxShadow: on ? `0 6px 22px -10px ${C.fl1}55` : "none",
+        transform: on ? "scale(1.02)" : "scale(1)",
+        transition: "all 0.25s ease",
+        color: on ? C.fl1 : C.hi,
+        textAlign: "center"
       }}>
-        {big && <div style={{ fontSize: 28, marginBottom: 8 }}>{emoji}</div>}
-        {!big && emoji && <div style={{ fontSize: 20, marginBottom: 4 }}>{emoji}</div>}
-        <div style={{ fontFamily: display, fontWeight: 700, fontSize: big ? 14 : 13.5, color: on ? C.fl1 : C.hi }}>{label}</div>
+        {big && <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>{icon}</div>}
+        {!big && icon && <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>{icon}</div>}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: big ? 14.5 : 13.5 }}>{label}</div>
         {big && desc && <div style={{ fontFamily: body, fontSize: 12, color: C.low, marginTop: 3, lineHeight: 1.5 }}>{desc}</div>}
       </div>
     );
@@ -841,39 +955,42 @@ function WebDevWizard() {
 
   /* ── Success screen ── */
   if (status === "success") {
-    const refId = `WEB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return (
-      <div id="web-wizard-form" style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-        <div style={{ width: 80, height: 80, borderRadius: "50%", background: `${C.fl1}18`, border: `2px solid ${C.fl1}44`, display: "grid", placeItems: "center" }}>
-          <CheckCircle2 size={40} style={{ color: C.fl1 }} />
+      <div id="web-wizard-success" style={{ textAlign: "center", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${C.fl1}18`, border: `2px solid ${C.fl1}44`, display: "grid", placeItems: "center" }}>
+          <CheckCircle2 size={28} style={{ color: C.fl1 }} />
         </div>
         <div>
-          <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, margin: "0 0 8px", color: C.hi }}>Request Successfully Submitted</h3>
-          <p style={{ fontFamily: mono, fontSize: 13, color: C.fl1, margin: "0 0 12px", letterSpacing: 0.5 }}>Reference ID: {refId}</p>
-          <p style={{ fontFamily: body, fontSize: 15, color: C.mid, margin: 0, maxWidth: 400 }}>Thank you, <strong style={{ color: C.hi }}>{form.name}</strong>! Your consultation request has been received.</p>
+          <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 22, margin: "0 0 8px", color: C.hi }}>Project Inquiry Received</h3>
+          <p style={{ fontFamily: mono, fontSize: 12, color: C.fl1, margin: "0 0 8px", letterSpacing: 0.5 }}>Reference ID: {refId}</p>
+          <p style={{ fontFamily: body, fontSize: 14.5, color: C.mid, margin: 0, maxWidth: 400 }}>Thank you for reaching out, <strong style={{ color: C.hi }}>{form.name}</strong>.</p>
         </div>
 
-        <div style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 24, textAlign: "left" }}>
-          <h4 style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>What happens now?</h4>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ maxWidth: 480, margin: "0 auto", width: "100%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 20, textAlign: "left" }}>
+          <h4 style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>Here's what happens next:</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              "I will review your requirements",
-              "I will contact you for clarification if needed",
-              "We will discuss the next steps"
+              "I'll carefully review your project details.",
+              "I'll contact you within 24 hours.",
+              "We'll discuss your specific requirements.",
+              "You'll receive a tailored proposal and quotation."
             ].map((text, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CheckCircle2 size={16} style={{ color: C.fl1 }} />
-                <span style={{ fontFamily: body, fontSize: 14, color: C.mid }}>{text}</span>
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${C.fl1}22`, color: C.fl1, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, fontFamily: mono, flexShrink: 0 }}>
+                  {i + 1}
+                </div>
+                <span style={{ fontFamily: body, fontSize: 14, color: C.mid, marginTop: 2 }}>{text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
-
-          <button onClick={() => { setStatus(null); setStep(1); setForm({ name: "", email: "", brand: "", projectType: "", features: [], budget: "", timeline: "", description: "" }); window.localStorage.removeItem("web-form"); window.localStorage.removeItem("web-step"); }}
-            style={{ fontFamily: body, fontWeight: 600, fontSize: 13, color: C.mid, background: "transparent", border: "none", cursor: "pointer" }}>
-            Return to Home
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", marginTop: 4 }}>
+          <button onClick={() => { setStatus(null); setStep(1); setForm({ name: "", email: "", brand: "", contactMethod: "", projectType: "", industry: "", budget: "", timeline: "", features: [], contentAssets: [], references: "", description: "" }); window.localStorage.removeItem("web-form"); window.localStorage.removeItem("web-step"); }}
+            style={{ display: "inline-flex", justifyContent: "center", alignItems: "center", gap: 8, fontFamily: body, fontWeight: 600, fontSize: 14, padding: "12px 24px", borderRadius: 999, border: `1px solid ${C.fl1}55`, background: "rgba(255,255,255,0.03)", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${C.fl1}11`; e.currentTarget.style.borderColor = C.fl1; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = `${C.fl1}55`; }}>
+            <Rocket size={16} /> Submit Another Request
           </button>
         </div>
       </div>
@@ -883,13 +1000,13 @@ function WebDevWizard() {
   const ErrorBanner = () => status === "error" ? (
     <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.3)", borderRadius: 12, padding: "14px 18px", marginBottom: 16 }}>
       <X size={16} style={{ color: "#FF6B6B", flexShrink: 0 }} />
-      <span style={{ fontFamily: body, fontSize: 13.5, color: C.hi }}>Something went wrong. Email me at <a href="mailto:hello.deshanth@gmail.com" style={{ color: C.fl1 }}>hello.deshanth@gmail.com</a></span>
+      <span style={{ fontFamily: body, fontSize: 13.5, color: C.hi }}>Something went wrong. Email me at <a href={`mailto:hello.deshanth@gmail.com`} style={{ color: C.fl1 }}>hello.deshanth@gmail.com</a></span>
     </div>
   ) : null;
 
   /* ── Nav buttons ── */
   const NavRow = () => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 32, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
       {step > 1
         ? <button type="button" onClick={() => nav(step - 1, "bwd")} style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: body, fontWeight: 600, fontSize: 14, color: C.mid, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "10px 20px", cursor: "pointer", transition: "all .2s ease" }}
           onMouseEnter={e => e.currentTarget.style.color = C.hi} onMouseLeave={e => e.currentTarget.style.color = C.mid}>
@@ -903,7 +1020,7 @@ function WebDevWizard() {
         </button>
         : <button type="button" onClick={handleSubmit} disabled={status === "sending"}
           style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: body, fontWeight: 700, fontSize: 14, color: "#0B0915", background: `linear-gradient(95deg,${C.fl1},${C.fl2})`, border: "none", borderRadius: 999, padding: "11px 26px", cursor: "pointer", opacity: status === "sending" ? 0.7 : 1, boxShadow: `0 6px 20px -10px ${C.fl1}66` }}>
-          {status === "sending" ? <><span style={{ animation: "spinSlow 1s linear infinite", display: "inline-block" }}>⟳</span> Sending…</> : <><Rocket size={15} /> Request Website Consultation</>}
+          {status === "sending" ? <><span style={{ animation: "spinSlow 1s linear infinite", display: "inline-block" }}>⟳</span> Sending…</> : <><Rocket size={15} /> Submit Project Inquiry</>}
         </button>}
     </div>
   );
@@ -912,80 +1029,157 @@ function WebDevWizard() {
     <div id="web-wizard-form">
       <ProgressTracker step={step} total={STEPS} color={C.fl1} />
       {/* Step heading */}
-      <div style={{ marginBottom: 22 }}>
-        <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, margin: "0 0 4px", color: C.hi }}>{LABELS[step]?.title}</h3>
-        <p style={{ fontFamily: body, fontSize: 13.5, color: C.mid, margin: 0 }}>{LABELS[step]?.sub}</p>
+      <div style={{ marginBottom: 26, textAlign: "center" }}>
+        <p style={{ fontFamily: mono, fontSize: 12, color: C.fl1, letterSpacing: 1, margin: "0 0 6px" }}>{LABELS[step]?.sub}</p>
+        <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(22px, 4vw, 28px)", margin: 0, color: C.hi }}>{LABELS[step]?.title}</h3>
       </div>
       {/* Step content with slide animation */}
       <div key={animKey} className={dir === "fwd" ? "wizFwd" : "wizBwd"}>
-        {/* ── STEP 1: Client Info ── */}
+        
+        {/* ── STEP 1: About You ── */}
         {step === 1 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div className="formRow">
               <div className="formField">
                 <label className="formLabel">Full Name <span style={{ color: C.fl1 }}>*</span></label>
-                <input className="formInput" type="text" placeholder="John Smith"
+                <input className="formInput" type="text" placeholder="Jane Doe"
                   value={form.name} onChange={e => hc("name", e.target.value)}
                   style={errors.name ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
                 <ErrMsg field="name" />
               </div>
               <div className="formField">
-                <label className="formLabel">Email Address <span style={{ color: C.fl1 }}>*</span></label>
-                <input className="formInput" type="email" placeholder="john@example.com"
-                  value={form.email} onChange={e => hc("email", e.target.value)}
-                  style={errors.email ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
-                <ErrMsg field="email" />
+                <label className="formLabel">Business / Company <span style={{ fontWeight: 400, color: C.low }}>(Optional)</span></label>
+                <input className="formInput" type="text" placeholder="Your brand name"
+                  value={form.brand} onChange={e => hc("brand", e.target.value)} />
               </div>
             </div>
             <div className="formField">
-              <label className="formLabel">Company / Brand Name <span style={{ fontWeight: 400, color: C.low }}>(optional)</span></label>
-              <input className="formInput" type="text" placeholder="Your brand or company"
-                value={form.brand} onChange={e => hc("brand", e.target.value)} />
+              <label className="formLabel">Email Address <span style={{ color: C.fl1 }}>*</span></label>
+              <input className="formInput" type="email" placeholder="jane@example.com"
+                value={form.email} onChange={e => hc("email", e.target.value)}
+                style={errors.email ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
+              <ErrMsg field="email" />
             </div>
           </div>
         )}
-        {/* ── STEP 2: Project Type ── */}
+        
+        {/* ── STEP 2: Your Project ── */}
         {step === 2 && (
-          <div>
-            <div className="wizGrid5">
-              {PROJECT_TYPES.map(t => <SelCard key={t.v} val={t.v} field="projectType" emoji={t.emoji} label={t.label} desc={t.desc} big />)}
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>What would you like to build?</label>
+              <div className="wizGrid2">
+                {PROJECT_TYPES.map(t => <SelCard key={t.v} val={t.v} field="projectType" icon={t.icon} label={t.label} big />)}
+              </div>
+              <ErrMsg field="projectType" />
             </div>
-            <ErrMsg field="projectType" />
+            <div className="formField">
+              <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>What industry are you in?</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                {INDUSTRIES.map(c => <SelCard key={c} val={c} field="industry" label={c} />)}
+              </div>
+            </div>
           </div>
         )}
-        {/* ── STEP 3: Features ── */}
+
+        {/* ── STEP 3: Project Details ── */}
         {step === 3 && (
-          <div>
-            <ToggleChips options={FEATURES} selected={form.features}
-              onChange={v => hc("features", v)} accent={C.fl1} />
-            <p style={{ fontFamily: body, fontSize: 12, color: C.low, marginTop: 12 }}>You can skip this and describe in the final step.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            
+            {/* Block 1: Scope */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 24 }}>
+                <div>
+                  <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Estimated Budget</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {BUDGETS.map(b => (
+                      <button key={b.v} onClick={() => hc("budget", b.v)} style={{
+                        background: form.budget === b.v ? `${C.fl1}20` : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${form.budget === b.v ? C.fl1 : "rgba(255,255,255,0.12)"}`,
+                        color: form.budget === b.v ? C.fl1 : C.mid, padding: "8px 14px", borderRadius: 999, fontSize: 13, fontFamily: body, cursor: "pointer", transition: "all .2s ease"
+                      }}>{b.l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Timeline</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {TIMELINES.map(t => (
+                      <button key={t.v} onClick={() => hc("timeline", t.v)} style={{
+                        background: form.timeline === t.v ? `${C.fl1}20` : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${form.timeline === t.v ? C.fl1 : "rgba(255,255,255,0.12)"}`,
+                        color: form.timeline === t.v ? C.fl1 : C.mid, padding: "8px 14px", borderRadius: 999, fontSize: 13, fontFamily: body, cursor: "pointer", transition: "all .2s ease"
+                      }}>{t.l}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Block 2: Requirements & Assets */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+              <div>
+                <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Features Needed</label>
+                <ToggleChips options={FEATURES} selected={form.features} onChange={v => hc("features", v)} accent={C.fl1} />
+              </div>
+
+              <div>
+                <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Do you already have these?</label>
+                <ToggleChips options={CONTENT_OPTS} selected={form.contentAssets} accent={C.fl1} onChange={v => {
+                  if (v.includes("None Yet") && !form.contentAssets.includes("None Yet")) {
+                    hc("contentAssets", ["None Yet"]);
+                  } else {
+                    hc("contentAssets", v.filter(x => x !== "None Yet"));
+                  }
+                }} />
+              </div>
+            </div>
+
+            {/* Block 3: Description */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+              <div className="formField">
+                <label className="formLabel">Do you have websites you like? <span style={{ fontWeight: 400, color: C.low }}>(Optional)</span></label>
+                <textarea className="formTextarea" style={{ minHeight: 60 }}
+                  placeholder="Paste links to websites you like..."
+                  value={form.references} onChange={e => hc("references", e.target.value)} />
+              </div>
+
+              <div className="formField">
+                <label className="formLabel">Project Description <span style={{ color: C.fl1 }}>*</span></label>
+                <textarea className="formTextarea" style={{ minHeight: 110, ...(errors.description ? { borderColor: "rgba(255,107,107,0.6)" } : {}) }}
+                  placeholder="Describe your vision, goals, target audience, any inspiration or references..."
+                  value={form.description} onChange={e => hc("description", e.target.value)} />
+                <ErrMsg field="description" />
+              </div>
+            </div>
+
           </div>
         )}
-        {/* ── STEP 4: Budget + Timeline + Description ── */}
+
+        {/* ── STEP 4: Review ── */}
         {step === 4 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <ComplexityIndicator form={form} color={C.fl1} mode="web" />
-            <div>
-              <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Project Budget <span style={{ fontWeight: 400, color: C.low, fontSize: 12.5, textTransform: "none", letterSpacing: 0 }}>(Excludes domain & hosting)</span></label>
-              <div className="wizGrid2">
-                {BUDGETS.map(b => <SelCard key={b.v} val={b.v} field="budget" label={b.l} />)}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24 }}>
+              <h4 style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>Summary</h4>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                  <span style={{ color: C.mid, fontSize: 13.5 }}>Name</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{form.name}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                  <span style={{ color: C.mid, fontSize: 13.5 }}>Email</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{form.email}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                  <span style={{ color: C.mid, fontSize: 13.5 }}>Project</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{PROJECT_TYPES.find(p => p.v === form.projectType)?.label || "Not selected"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                  <span style={{ color: C.mid, fontSize: 13.5 }}>Budget</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{BUDGETS.find(b => b.v === form.budget)?.l || "Not set"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: C.mid, fontSize: 13.5 }}>Timeline</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{TIMELINES.find(t => t.v === form.timeline)?.l || "Not set"}</span>
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Expected Timeline</label>
-              <div className="wizGrid2">
-                {TIMELINES.map(t => <SelCard key={t.v} val={t.v} field="timeline" label={t.l} />)}
-              </div>
-            </div>
-            <div className="formField">
-              <label className="formLabel">Project Description <span style={{ color: C.fl1 }}>*</span></label>
-              <textarea className="formTextarea" style={{ minHeight: 110, ...(errors.description ? { borderColor: "rgba(255,107,107,0.6)" } : {}) }}
-                placeholder="Describe your vision, goals, target audience, any inspiration or references..."
-                value={form.description} onChange={e => hc("description", e.target.value)} />
-              <ErrMsg field="description" />
             </div>
             <ErrorBanner />
-            <TrustBadge color={C.fl1} />
           </div>
         )}
       </div>
@@ -994,39 +1188,66 @@ function WebDevWizard() {
   );
 }
 
-/* ── QAWizard (4-step testing discovery wizard) ──────────────── */
+/* ── QAWizard (4-step QA discovery wizard) ──────────────── */
 function QAWizard() {
   const STEPS = 4;
   const [step, setStep] = useState(1);
   const [dir, setDir] = useState("fwd");
   const [animKey, setAK] = useState(0);
+  
   const [form, setForm] = useState({
-    name: "", email: "", company: "",
-    appType: "",
-    testing: [],
-    testingStage: "", timeline: "", description: "",
+    name: "", email: "", company: "", contactMethod: "",
+    appType: "", appStage: "",
+    testing: [], platforms: [], environment: [], automationPref: "",
+    apiType: "", apiAuth: "", apiDocs: "",
+    autoExisting: "", autoFramework: "", autoCICD: "",
+    perfUsers: "", perfTime: "", perfGoals: "",
+    budget: "", timeline: "", bugTracker: "",
+    description: "",
   });
+
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
+  const [refId, setRefId] = useState("");
+
+  useEffect(() => {
+    if (status === "success") {
+      const el = document.getElementById("qa-wizard-success");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const pct = Math.round((step / STEPS) * 100);
 
+  const CONTACT_OPTS = ["Email", "WhatsApp", "Google Meet", "Phone"];
+  
   const APP_TYPES = [
-    { v: "web", emoji: "🌐", label: "Web Application", desc: "Browser-based apps" },
-    { v: "mobile", emoji: "📱", label: "Mobile Application", desc: "iOS / Android apps" },
-    { v: "desktop", emoji: "🖥", label: "Desktop Application", desc: "Windows/macOS/Linux" },
-    { v: "api", emoji: "🔌", label: "API / Backend", desc: "REST, GraphQL, services" },
+    { v: "web", icon: <Globe size={24} />, label: "Web Application" },
+    { v: "mobile", icon: <Smartphone size={24} />, label: "Mobile Application" },
+    { v: "api", icon: <Code2 size={24} />, label: "REST API" },
+    { v: "desktop", icon: <Monitor size={24} />, label: "Desktop Application" },
+    { v: "saas", icon: <Cloud size={24} />, label: "SaaS Platform" },
+    { v: "unsure", icon: <HelpCircle size={24} />, label: "Not Sure" }
   ];
-  const TESTING_OPTS = ["Manual Testing", "Functional Testing", "Regression Testing", "API Testing", "Database Testing", "Automation Testing", "Performance Testing"];
-  const TEST_STAGES = [{ v: "none", l: "No Testing Process" }, { v: "manual", l: "Need Manual Testing" }, { v: "auto", l: "Need Automation Setup" }, { v: "improve", l: "Improving Existing" }];
-  const TIMELINES = [{ v: "urgent", l: "Urgent" }, { v: "1m", l: "Within 1 Month" }, { v: "1-3m", l: "1–3 Months" }, { v: "flex", l: "Flexible" }];
+
+  const APP_STAGES = ["Planning", "Development", "Ready for Testing", "Beta Release", "Production", "Maintenance"];
+
+  const TESTING_TYPES = ["Manual Testing", "UI Testing", "Automation Testing", "API Testing", "Regression Testing", "Smoke Testing", "Performance Testing", "Security Testing", "Compatibility Testing", "Accessibility Testing", "Database Testing", "Exploratory Testing"];
+  
+  const PLATFORMS = ["Desktop", "Mobile", "Tablet", "Chrome", "Firefox", "Safari", "Edge", "Android", "iOS"];
+  const ENVIRONMENTS = ["Development", "Staging", "Production"];
+  const AUTO_PREFS = ["Manual Testing", "Automation Testing", "Both Manual + Automation", "Need Recommendation"];
+
+  const BUDGETS = ["Let's Discuss", "Under $300", "$300-$500", "$500-$1000", "$1000+"];
+  const TIMELINES = ["ASAP", "Within 1 Week", "Within 2 Weeks", "Within 1 Month", "Flexible"];
+  const BUG_TRACKERS = ["Jira", "Azure DevOps", "GitHub", "Trello", "None", "Other"];
 
   const LABELS = [
     null,
-    { title: "Let's get to know each other", sub: "Let's start with the basics" },
-    { title: "Tell me about your application", sub: "What type of software do you need tested?" },
-    { title: "How can I help you test?", sub: "Select all the testing types you need" },
-    { title: "Testing scope & expectations", sub: "Stage, timeline & anything else you want me to know" },
+    { title: "About You", sub: "Tell me about yourself and how to reach you" },
+    { title: "Your Application", sub: "What are we testing and what stage is it in?" },
+    { title: "Testing Requirements", sub: "Define the scope and technical details of the testing" },
+    { title: "Review & Submit", sub: "Review your requirements before submitting" },
   ];
 
   const validate = () => {
@@ -1036,8 +1257,16 @@ function QAWizard() {
       if (!form.email.trim()) e.email = "Email is required.";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email.";
     }
-    if (step === 2 && !form.appType) e.appType = "Please select an application type.";
-    if (step === 4 && !form.description.trim()) e.description = "Testing requirements description is required.";
+    if (step === 2) {
+      if (!form.appType) e.appType = "Please select an application type.";
+      if (!form.appStage) e.appStage = "Please select the current stage of your application.";
+    }
+    if (step === 3) {
+      if (!form.testing.length) e.testing = "Please select at least one testing type.";
+    }
+    if (step === 4) {
+      if (!form.description.trim()) e.description = "Project description is required.";
+    }
     return e;
   };
 
@@ -1051,11 +1280,8 @@ function QAWizard() {
 
     setTimeout(() => {
       const el = document.getElementById("qa-wizard-form");
-      if (el) {
-        const top = el.getBoundingClientRect().top + window.scrollY - 100;
-        window.scrollTo({ top, behavior: "smooth" });
-      }
-    }, 50);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const handleSubmit = async () => {
@@ -1063,6 +1289,55 @@ function QAWizard() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStatus("sending");
     try {
+      const generatedRef = `QA-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      setRefId(generatedRef);
+      
+      let smartDetails = "";
+      if (form.automationPref) {
+        smartDetails += `\n[Automation Preference]\nPrefers: ${form.automationPref}\n`;
+      }
+      if (form.testing.includes("API Testing")) {
+        smartDetails += `\n[API Setup]\nType: ${form.apiType || "N/A"}\nAuth: ${form.apiAuth || "N/A"}\nDocs: ${form.apiDocs || "N/A"}\n`;
+      }
+      if (form.testing.includes("Automation Testing")) {
+        smartDetails += `\n[Automation]\nExisting Suite: ${form.autoExisting || "N/A"}\nFramework: ${form.autoFramework || "N/A"}\nCI/CD: ${form.autoCICD || "N/A"}\n`;
+      }
+      if (form.testing.includes("Performance Testing")) {
+        smartDetails += `\n[Performance]\nUsers: ${form.perfUsers || "N/A"}\nResponse Time: ${form.perfTime || "N/A"}\nGoals: ${form.perfGoals || "N/A"}\n`;
+      }
+
+      const emailBody = `
+=========================================
+REFERENCE ID: ${generatedRef}
+DATE: ${new Date().toLocaleString()}
+=========================================
+
+CLIENT DETAILS
+-----------------------------------------
+Name:          ${form.name}
+Email:         ${form.email}
+Company/Org:   ${form.company || "Not specified"}
+
+TESTING SCOPE
+-----------------------------------------
+App Type:      ${APP_TYPES.find(a => a.v === form.appType)?.label || form.appType}
+App Stage:     ${form.appStage || "Not set"}
+Testing Types: ${form.testing.length ? form.testing.join(", ") : "None specified"}
+Platforms:     ${form.platforms.length ? form.platforms.join(", ") : "Any"}
+Environments:  ${form.environment.length ? form.environment.join(", ") : "Not set"}
+
+LOGISTICS
+-----------------------------------------
+Timeline:      ${form.timeline || "Not set"}
+Budget:        ${form.budget || "Not set"}
+Bug Tracker:   ${form.bugTracker || "Not set"}
+${smartDetails ? `\nSMART DETAILS\n-----------------------------------------\n${smartDetails.trim()}` : ""}
+
+PROJECT DESCRIPTION
+-----------------------------------------
+${form.description}
+`.trim();
+
       const payload = {
         service_id: 'service_lcmhd9d',
         template_id: 'template_ptjpovk',
@@ -1070,15 +1345,10 @@ function QAWizard() {
         template_params: {
           name: form.name,
           email: form.email,
-          company: form.company || "N/A",
-          appType: APP_TYPES.find(a => a.v === form.appType)?.label || form.appType,
-          testing: form.testing.length ? form.testing.join(", ") : "None",
-          testingStage: TEST_STAGES.find(s => s.v === form.testingStage)?.l || form.testingStage,
-          timeline: TIMELINES.find(t => t.v === form.timeline)?.l || form.timeline,
-          description: form.description,
-          time: new Date().toLocaleString()
+          message: emailBody
         }
       };
+      
       const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1089,27 +1359,16 @@ function QAWizard() {
     } catch { setStatus("error"); }
   };
 
-  useEffect(() => {
-    if (status === "success") {
-      setTimeout(() => {
-        const el = document.getElementById("qa-wizard-form");
-        if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY - 100;
-          window.scrollTo({ top, behavior: "smooth" });
-        }
-      }, 50);
-    }
-  }, [status]);
-
   const hc = (field, val) => {
     setForm(f => ({ ...f, [field]: val }));
     if (errors[field]) setErrors(e => ({ ...e, [field]: undefined }));
   };
+
   const ErrMsg = ({ field }) => errors[field]
     ? <span style={{ display: "block", fontFamily: body, fontSize: 12, color: "#FF6B6B", marginTop: 4 }}>{errors[field]}</span>
     : null;
 
-  const SelCard = ({ val, field, emoji, label, desc, big }) => {
+  const SelCard = ({ val, field, icon, label, big }) => {
     const on = form[field] === val;
     const cl = big ? `selCard${on ? " on" : ""}` : `selCardSm${on ? " on" : ""}`;
     return (
@@ -1117,50 +1376,56 @@ function QAWizard() {
         border: `1.5px solid ${on ? C.qa1 : "rgba(255,255,255,0.09)"}`,
         background: on ? `${C.qa1}12` : "rgba(255,255,255,0.03)",
         boxShadow: on ? `0 6px 22px -10px ${C.qa1}55` : "none",
+        transform: on ? "scale(1.02)" : "scale(1)",
+        transition: "all 0.25s ease",
+        color: on ? C.qa1 : C.hi,
+        textAlign: "center"
       }}>
-        {big && <div style={{ fontSize: 28, marginBottom: 8 }}>{emoji}</div>}
-        {!big && emoji && <div style={{ fontSize: 20, marginBottom: 4 }}>{emoji}</div>}
-        <div style={{ fontFamily: display, fontWeight: 700, fontSize: big ? 14 : 13.5, color: on ? C.qa1 : C.hi }}>{label}</div>
-        {big && desc && <div style={{ fontFamily: body, fontSize: 12, color: C.low, marginTop: 3, lineHeight: 1.5 }}>{desc}</div>}
+        {big && <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>{icon}</div>}
+        {!big && icon && <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>{icon}</div>}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: big ? 14.5 : 13.5 }}>{label}</div>
       </div>
     );
   };
 
-  /* ── Success screen ── */
   if (status === "success") {
-    const refId = `QA-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return (
-      <div id="qa-wizard-form" style={{ textAlign: "center", padding: "40px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-        <div style={{ width: 80, height: 80, borderRadius: "50%", background: `${C.qa1}18`, border: `2px solid ${C.qa1}44`, display: "grid", placeItems: "center" }}>
-          <CheckCircle2 size={40} style={{ color: C.qa1 }} />
+      <div id="qa-wizard-success" style={{ textAlign: "center", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${C.qa1}18`, border: `2px solid ${C.qa1}44`, display: "grid", placeItems: "center" }}>
+          <CheckCircle2 size={28} style={{ color: C.qa1 }} />
         </div>
         <div>
-          <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, margin: "0 0 8px", color: C.hi }}>Request Successfully Submitted</h3>
-          <p style={{ fontFamily: mono, fontSize: 13, color: C.qa1, margin: "0 0 12px", letterSpacing: 0.5 }}>Reference ID: {refId}</p>
-          <p style={{ fontFamily: body, fontSize: 15, color: C.mid, margin: 0, maxWidth: 400 }}>Thank you, <strong style={{ color: C.hi }}>{form.name}</strong>! Your QA consultation request has been received.</p>
+          <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 22, margin: "0 0 8px", color: C.hi }}>QA Request Received</h3>
+          <p style={{ fontFamily: mono, fontSize: 12, color: C.qa1, margin: "0 0 8px", letterSpacing: 0.5 }}>Reference ID: {refId}</p>
+          <p style={{ fontFamily: body, fontSize: 14.5, color: C.mid, margin: 0, maxWidth: 400 }}>Thank you for reaching out, <strong style={{ color: C.hi }}>{form.name}</strong>.</p>
         </div>
 
-        <div style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 24, textAlign: "left" }}>
-          <h4 style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>What happens now?</h4>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ maxWidth: 480, margin: "0 auto", width: "100%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 20, textAlign: "left" }}>
+          <h4 style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>What happens next:</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              "I will review your requirements",
-              "I will contact you for clarification if needed",
-              "We will discuss the next steps"
+              "I'll review your testing requirements.",
+              "I'll contact you within 24 hours.",
+              "We'll discuss your testing scope.",
+              "I'll recommend the best testing strategy.",
+              "You'll receive a quotation if required."
             ].map((text, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CheckCircle2 size={16} style={{ color: C.qa1 }} />
-                <span style={{ fontFamily: body, fontSize: 14, color: C.mid }}>{text}</span>
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${C.qa1}22`, color: C.qa1, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, fontFamily: mono, flexShrink: 0 }}>
+                  {i + 1}
+                </div>
+                <span style={{ fontFamily: body, fontSize: 14, color: C.mid, marginTop: 2 }}>{text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
-
-          <button onClick={() => { setStatus(null); setStep(1); setForm({ name: "", email: "", company: "", appType: "", testing: [], testingStage: "", timeline: "", description: "" }); window.localStorage.removeItem("qa-form"); window.localStorage.removeItem("qa-step"); }}
-            style={{ fontFamily: body, fontWeight: 600, fontSize: 13, color: C.mid, background: "transparent", border: "none", cursor: "pointer" }}>
-            Return to Home
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", marginTop: 4 }}>
+          <button onClick={() => { setStatus(null); setStep(1); setForm({ name: "", email: "", company: "", contactMethod: "", appType: "", appStage: "", testing: [], platforms: [], environment: [], automationPref: "", apiType: "", apiAuth: "", apiDocs: "", autoExisting: "", autoFramework: "", autoCICD: "", perfUsers: "", perfTime: "", perfGoals: "", budget: "", timeline: "", bugTracker: "", description: "" }); }}
+            style={{ display: "inline-flex", justifyContent: "center", alignItems: "center", gap: 8, fontFamily: body, fontWeight: 600, fontSize: 14, padding: "12px 24px", borderRadius: 999, border: `1px solid ${C.qa1}55`, background: "rgba(255,255,255,0.03)", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${C.qa1}11`; e.currentTarget.style.borderColor = C.qa1; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = `${C.qa1}55`; }}>
+            <TestTube2 size={16} /> Start Another Request
           </button>
         </div>
       </div>
@@ -1170,7 +1435,7 @@ function QAWizard() {
   const ErrorBanner = () => status === "error" ? (
     <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.3)", borderRadius: 12, padding: "14px 18px", marginBottom: 16 }}>
       <X size={16} style={{ color: "#FF6B6B", flexShrink: 0 }} />
-      <span style={{ fontFamily: body, fontSize: 13.5, color: C.hi }}>Something went wrong. Email me at <a href="mailto:hello.deshanth@gmail.com" style={{ color: C.qa1 }}>hello.deshanth@gmail.com</a></span>
+      <span style={{ fontFamily: body, fontSize: 13.5, color: C.hi }}>Something went wrong. Email me at <a href="mailto:deshanthv@gmail.com" style={{ color: C.qa1 }}>deshanthv@gmail.com</a></span>
     </div>
   ) : null;
 
@@ -1189,91 +1454,261 @@ function QAWizard() {
         </button>
         : <button type="button" onClick={handleSubmit} disabled={status === "sending"}
           style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: body, fontWeight: 700, fontSize: 14, color: "#0B0915", background: `linear-gradient(95deg,${C.qa1},${C.qa2})`, border: "none", borderRadius: 999, padding: "11px 26px", cursor: "pointer", opacity: status === "sending" ? 0.7 : 1, boxShadow: `0 6px 20px -10px ${C.qa1}66` }}>
-          {status === "sending" ? <><span style={{ animation: "spinSlow 1s linear infinite", display: "inline-block" }}>⟳</span> Sending…</> : <><TestTube2 size={15} /> Request QA Consultation</>}
+          {status === "sending" ? <><span style={{ animation: "spinSlow 1s linear infinite", display: "inline-block" }}>⟳</span> Sending…</> : <><TestTube2 size={15} /> Submit QA Request</>}
         </button>}
     </div>
   );
 
   return (
     <div id="qa-wizard-form">
-      <ProgressTracker step={step} total={STEPS} color={C.qa1} />
-      <div style={{ marginBottom: 22 }}>
-        <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, margin: "0 0 4px", color: C.hi }}>{LABELS[step]?.title}</h3>
-        <p style={{ fontFamily: body, fontSize: 13.5, color: C.mid, margin: 0 }}>{LABELS[step]?.sub}</p>
-      </div>
-      <div key={animKey} className={dir === "fwd" ? "wizFwd" : "wizBwd"}>
-        {/* ── STEP 1: Client Info ── */}
-        {step === 1 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div className="formRow">
-              <div className="formField">
-                <label className="formLabel">Full Name <span style={{ color: C.qa1 }}>*</span></label>
-                <input className="formInput" type="text" placeholder="John Smith"
-                  value={form.name} onChange={e => hc("name", e.target.value)}
-                  style={errors.name ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
-                <ErrMsg field="name" />
+      
+      {/* LEFT COLUMN - WIZARD */}
+      <div className="responsive-pad" style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 24, backdropFilter: "blur(20px)" }}>
+        <ProgressTracker step={step} total={STEPS} color={C.qa1} />
+        <div style={{ marginBottom: 32 }}>
+          <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, margin: "0 0 6px", color: C.hi }}>{LABELS[step]?.title}</h3>
+          <p style={{ fontFamily: body, fontSize: 15, color: C.mid, margin: 0 }}>{LABELS[step]?.sub}</p>
+        </div>
+        
+        <div key={animKey} className={dir === "fwd" ? "wizFwd" : "wizBwd"}>
+          
+          {/* ── STEP 1: About You ── */}
+          {step === 1 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div className="formRow">
+                <div className="formField">
+                  <label className="formLabel">Full Name <span style={{ color: C.qa1 }}>*</span></label>
+                  <input className="formInput" type="text" placeholder="John Smith"
+                    value={form.name} onChange={e => hc("name", e.target.value)}
+                    style={errors.name ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
+                  <ErrMsg field="name" />
+                </div>
+                <div className="formField">
+                  <label className="formLabel">Email Address <span style={{ color: C.qa1 }}>*</span></label>
+                  <input className="formInput" type="email" placeholder="john@example.com"
+                    value={form.email} onChange={e => hc("email", e.target.value)}
+                    style={errors.email ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
+                  <ErrMsg field="email" />
+                </div>
               </div>
               <div className="formField">
-                <label className="formLabel">Email Address <span style={{ color: C.qa1 }}>*</span></label>
-                <input className="formInput" type="email" placeholder="john@example.com"
-                  value={form.email} onChange={e => hc("email", e.target.value)}
-                  style={errors.email ? { borderColor: "rgba(255,107,107,0.6)" } : {}} />
-                <ErrMsg field="email" />
+                <label className="formLabel">Company / Organization <span style={{ fontWeight: 400, color: C.low }}>(Optional)</span></label>
+                <input className="formInput" type="text" placeholder="Your company name"
+                  value={form.company} onChange={e => hc("company", e.target.value)} />
               </div>
             </div>
-            <div className="formField">
-              <label className="formLabel">Company / Product Name <span style={{ fontWeight: 400, color: C.low }}>(optional)</span></label>
-              <input className="formInput" type="text" placeholder="Your company or product"
-                value={form.company} onChange={e => hc("company", e.target.value)} />
-            </div>
-          </div>
-        )}
-        {/* ── STEP 2: App Type ── */}
-        {step === 2 && (
-          <div>
-            <div className="wizGrid4">
-              {APP_TYPES.map(t => <SelCard key={t.v} val={t.v} field="appType" emoji={t.emoji} label={t.label} desc={t.desc} big />)}
-            </div>
-            <ErrMsg field="appType" />
-          </div>
-        )}
-        {/* ── STEP 3: Testing Types ── */}
-        {step === 3 && (
-          <div>
-            <ToggleChips options={TESTING_OPTS} selected={form.testing}
-              onChange={v => hc("testing", v)} accent={C.qa1} />
-            <p style={{ fontFamily: body, fontSize: 12, color: C.low, marginTop: 12 }}>Select all that apply. You can clarify in the description.</p>
-          </div>
-        )}
-        {/* ── STEP 4: Stage + Timeline + Description ── */}
-        {step === 4 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <ComplexityIndicator form={form} color={C.qa1} mode="qa" />
-            <div>
-              <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Current Testing Stage</label>
-              <div className="wizGrid2">
-                {TEST_STAGES.map(s => <SelCard key={s.v} val={s.v} field="testingStage" label={s.l} />)}
+          )}
+
+          {/* ── STEP 2: Your Application ── */}
+          {step === 2 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              <div>
+                <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>What type of application needs testing? <span style={{ color: C.qa1 }}>*</span></label>
+                <div className="wizGrid2">
+                  {APP_TYPES.map(t => <SelCard key={t.v} val={t.v} field="appType" icon={t.icon} label={t.label} big />)}
+                </div>
+                <ErrMsg field="appType" />
+              </div>
+              
+              <hr style={{ border: 0, height: 1, background: "rgba(255,255,255,0.06)", margin: 0 }} />
+
+              <div>
+                <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>What stage is your application currently in? <span style={{ color: C.qa1 }}>*</span></label>
+                <div className="wizGrid2">
+                  {APP_STAGES.map(s => <SelCard key={s} val={s} field="appStage" label={s} />)}
+                </div>
+                <ErrMsg field="appStage" />
               </div>
             </div>
-            <div>
-              <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Project Timeline</label>
-              <div className="wizGrid2">
-                {TIMELINES.map(t => <SelCard key={t.v} val={t.v} field="timeline" label={t.l} />)}
+          )}
+
+          {/* ── STEP 3: Testing Requirements (Smart Logic) ── */}
+          {step === 3 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24 }}>
+                <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>What type of testing do you need? <span style={{ color: C.qa1 }}>*</span></label>
+                <ToggleChips options={TESTING_TYPES} selected={form.testing} onChange={v => hc("testing", v)} accent={C.qa1} />
+                <ErrMsg field="testing" />
               </div>
+
+              {/* API Testing Smart Fields */}
+              {form.testing.includes("API Testing") && (
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                  <h4 style={{ fontFamily: display, fontSize: 16, color: C.qa1, margin: 0 }}>API Testing Configuration</h4>
+                  <div className="formRow">
+                    <div>
+                      <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>API Type</label>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {["REST", "GraphQL", "SOAP"].map(v => (
+                          <button key={v} onClick={() => hc("apiType", v)} style={{ background: form.apiType === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.apiType === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.apiType === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Authentication</label>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {["JWT", "OAuth", "API Key", "None"].map(v => (
+                          <button key={v} onClick={() => hc("apiAuth", v)} style={{ background: form.apiAuth === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.apiAuth === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.apiAuth === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>API Documentation Available?</label>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {["Yes", "No"].map(v => (
+                        <button key={v} onClick={() => hc("apiDocs", v)} style={{ background: form.apiDocs === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.apiDocs === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.apiDocs === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Automation Testing Smart Fields */}
+              {form.testing.includes("Automation Testing") && (
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                  <h4 style={{ fontFamily: display, fontSize: 16, color: C.qa1, margin: 0 }}>Automation Requirements</h4>
+                  <div className="formRow">
+                    <div>
+                      <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Existing Automation Suite?</label>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {["Yes", "No"].map(v => (
+                          <button key={v} onClick={() => hc("autoExisting", v)} style={{ background: form.autoExisting === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.autoExisting === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.autoExisting === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>CI/CD Integration Required?</label>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {["Yes", "No"].map(v => (
+                          <button key={v} onClick={() => hc("autoCICD", v)} style={{ background: form.autoCICD === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.autoCICD === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.autoCICD === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="formLabel" style={{ display: "block", marginBottom: 10 }}>Preferred Framework</label>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {["Selenium", "Playwright", "Cypress", "Not Sure"].map(v => (
+                        <button key={v} onClick={() => hc("autoFramework", v)} style={{ background: form.autoFramework === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.autoFramework === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.autoFramework === v ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{v}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Performance Testing Smart Fields */}
+              {form.testing.includes("Performance Testing") && (
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                  <h4 style={{ fontFamily: display, fontSize: 16, color: C.qa1, margin: 0 }}>Performance Goals</h4>
+                  <div className="formRow">
+                    <div className="formField">
+                      <label className="formLabel">Expected Concurrent Users</label>
+                      <input className="formInput" type="text" placeholder="e.g. 500" value={form.perfUsers} onChange={e => hc("perfUsers", e.target.value)} />
+                    </div>
+                    <div className="formField">
+                      <label className="formLabel">Target Response Time</label>
+                      <input className="formInput" type="text" placeholder="e.g. < 2 seconds" value={form.perfTime} onChange={e => hc("perfTime", e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="formField">
+                    <label className="formLabel">Load Testing Goals</label>
+                    <input className="formInput" type="text" placeholder="Briefly describe your scalability targets..." value={form.perfGoals} onChange={e => hc("perfGoals", e.target.value)} />
+                  </div>
+                </div>
+              )}
+
+              {/* Scope & Environments */}
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+                <div>
+                  <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Which platforms should be tested?</label>
+                  <ToggleChips options={PLATFORMS} selected={form.platforms} onChange={v => hc("platforms", v)} accent={C.qa1} />
+                </div>
+                <div>
+                  <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Target Environments</label>
+                  <ToggleChips options={ENVIRONMENTS} selected={form.environment} onChange={v => hc("environment", v)} accent={C.qa1} />
+                </div>
+                <div>
+                  <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Automation Preference</label>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {AUTO_PREFS.map(v => (
+                      <button key={v} onClick={() => hc("automationPref", v)} style={{ background: form.automationPref === v ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.automationPref === v ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.automationPref === v ? C.qa1 : C.hi, padding: "8px 16px", borderRadius: 999, fontSize: 13.5, cursor: "pointer", transition: "all .2s ease" }}>{v}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
             </div>
-            <div className="formField">
-              <label className="formLabel">Testing Requirements <span style={{ color: C.qa1 }}>*</span></label>
-              <textarea className="formTextarea" style={{ minHeight: 110, ...(errors.description ? { borderColor: "rgba(255,107,107,0.6)" } : {}) }}
-                placeholder="Describe your application, known issues, what areas need coverage, any specific requirements..."
-                value={form.description} onChange={e => hc("description", e.target.value)} />
-              <ErrMsg field="description" />
+          )}
+
+          {/* ── STEP 4: Scope & Review ── */}
+          {step === 4 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24 }}>
+                  <div>
+                    <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Budget</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {BUDGETS.map(b => (
+                        <button key={b} onClick={() => hc("budget", b)} style={{ background: form.budget === b ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.budget === b ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.budget === b ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Timeline</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {TIMELINES.map(b => (
+                        <button key={b} onClick={() => hc("timeline", b)} style={{ background: form.timeline === b ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.timeline === b ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.timeline === b ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="formLabel" style={{ display: "block", marginBottom: 12 }}>Bug Tracking Tool</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {BUG_TRACKERS.map(b => (
+                        <button key={b} onClick={() => hc("bugTracker", b)} style={{ background: form.bugTracker === b ? `${C.qa1}20` : "rgba(255,255,255,0.04)", border: `1px solid ${form.bugTracker === b ? C.qa1 : "rgba(255,255,255,0.1)"}`, color: form.bugTracker === b ? C.qa1 : C.mid, padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer" }}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="formField">
+                <label className="formLabel">Tell me about your application <span style={{ color: C.qa1 }}>*</span></label>
+                <textarea className="formTextarea" style={{ minHeight: 140, ...(errors.description ? { borderColor: "rgba(255,107,107,0.6)" } : {}) }}
+                  placeholder="Describe your application, current challenges, testing goals, known issues, or anything else that would help me understand your project..."
+                  value={form.description} onChange={e => hc("description", e.target.value)} />
+                <ErrMsg field="description" />
+                <p style={{ fontFamily: body, fontSize: 12.5, color: C.low, marginTop: 8 }}>* You can share additional documents (Test Cases, API Docs, APKs) after I contact you.</p>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24 }}>
+                <h4 style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.hi, margin: "0 0 16px" }}>Summary</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                    <span style={{ color: C.mid, fontSize: 13.5 }}>Name</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{form.name || "-"}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                    <span style={{ color: C.mid, fontSize: 13.5 }}>Application</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{APP_TYPES.find(p => p.v === form.appType)?.label || "Not selected"}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
+                    <span style={{ color: C.mid, fontSize: 13.5 }}>Testing</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{form.testing.length ? form.testing.join(", ") : "None"}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.mid, fontSize: 13.5 }}>Timeline / Budget</span><span style={{ color: C.hi, fontSize: 13.5, fontWeight: 600 }}>{form.timeline || "-"} / {form.budget || "-"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <ErrorBanner />
             </div>
-            <ErrorBanner />
-            <TrustBadge color={C.qa1} />
-          </div>
-        )}
+          )}
+        </div>
+        <NavRow />
       </div>
-      <NavRow />
+
     </div>
   );
 }
@@ -1304,7 +1739,7 @@ function ScrollToTop({ mode }) {
 
   return (
     <div style={{
-      position: "fixed", bottom: 24, right: 24, zIndex: 100,
+      position: "fixed", bottom: 24, right: 24, zIndex: 9999,
       transform: show ? "translateY(0) scale(1)" : "translateY(20px) scale(0.8)",
       opacity: show ? 1 : 0,
       pointerEvents: show ? "auto" : "none",
@@ -1587,6 +2022,7 @@ export default function Portfolio() {
   const scrolled = useScrolled();
   const grad = mode === "qa" ? [C.qa1, C.qa2] : [C.fl1, C.fl2];
   const contactId = mode === "qa" ? "contact-qa" : "contact-web";
+  const emailId = mode === "qa" ? "deshanthv@gmail.com" : "hello.deshanth@gmail.com";
 
   const theme = mode === "qa" ? {
     badge: "QA MODE", watermarkLabel: "QA ENGINEER",
@@ -1623,6 +2059,54 @@ export default function Portfolio() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const [activeSection, setActiveSection] = useState("");
+  const [activeRect, setActiveRect] = useState({ left: 0, width: 0, opacity: 0 });
+
+  useEffect(() => {
+    const handleScrollSpy = () => {
+      const ids = ["about", "work", "experience", "projects", contactId];
+      let current = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && window.scrollY >= el.offsetTop - window.innerHeight / 2.5) {
+          current = id;
+        }
+      }
+      setActiveSection(current);
+    };
+    window.addEventListener("scroll", handleScrollSpy, { passive: true });
+    window.addEventListener("resize", handleScrollSpy, { passive: true });
+    handleScrollSpy();
+    return () => {
+      window.removeEventListener("scroll", handleScrollSpy);
+      window.removeEventListener("resize", handleScrollSpy);
+    };
+  }, [contactId]);
+
+  useEffect(() => {
+    if (activeSection) {
+      const activeEl = document.getElementById(`nav-link-${activeSection}`);
+      if (activeEl) {
+        setActiveRect({ left: activeEl.offsetLeft, width: activeEl.offsetWidth, opacity: 1 });
+      }
+    } else {
+      setActiveRect(prev => ({ ...prev, opacity: 0 }));
+    }
+  }, [activeSection, scrolled, mode]);
+
+  const [showRoleTip, setShowRoleTip] = useState(false);
+  useEffect(() => {
+    const hasSeen = localStorage.getItem("hasSeenRoleTip");
+    if (!hasSeen) {
+      const showTimer = setTimeout(() => setShowRoleTip(true), 2500);
+      const hideTimer = setTimeout(() => {
+        setShowRoleTip(false);
+        localStorage.setItem("hasSeenRoleTip", "true");
+      }, 7500);
+      return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
+    }
+  }, []);
+
   const [flipState, setFlipState] = useState("idle");
 
   useEffect(() => {
@@ -1630,6 +2114,10 @@ export default function Portfolio() {
   }, [mode]);
 
   const setRole = (next, onFlipped) => {
+    setShowRoleTip(false);
+    setMenuOpen(false);
+    localStorage.setItem("hasSeenRoleTip", "true");
+    
     if (mode === next || flipState === "out") {
       if (onFlipped) onFlipped();
       return;
@@ -1857,39 +2345,75 @@ export default function Portfolio() {
         <div style={{
           width: "100%", maxWidth: scrolled ? 820 : 1000,
           display: "flex", alignItems: "center", gap: 10,
-          background: scrolled ? theme.headerBg : "rgba(10,10,16,0.30)",
-          border: `1px solid ${scrolled ? theme.glassLine : "rgba(255,255,255,0.05)"}`,
+          background: scrolled ? (mode === "qa" ? "rgba(8, 17, 28, 0.9)" : "rgba(26, 14, 10, 0.9)") : "rgba(10, 10, 16, 0.3)",
+          border: `1px solid ${scrolled ? `${grad[0]}55` : "rgba(255,255,255,0.05)"}`,
           borderRadius: 999, padding: scrolled ? "8px 10px 8px 18px" : "12px 14px 12px 22px",
-          backdropFilter: "blur(18px)",
-          boxShadow: scrolled ? `0 12px 30px -16px ${theme.navGlow}` : "none",
+          backdropFilter: scrolled ? "blur(24px)" : "blur(18px)",
+          boxShadow: scrolled ? `0 20px 40px -16px ${grad[0]}44, inset 0 2px 24px -10px ${grad[1]}55` : "none",
           transition: "all .35s ease",
         }}>
           {/* Logo - Left */}
-          <div style={{ flex: 1, display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-            <a href="#top" onClick={goTo("top")} style={{ fontFamily: display, fontWeight: 800, fontSize: scrolled ? 16 : 18, transition: "font-size .35s ease", flexShrink: 0, textDecoration: "none" }}>
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 32 }}>
+            <a href="#top" onClick={goTo("top")} style={{ fontFamily: display, fontWeight: 800, fontSize: 18, transform: scrolled ? "scale(0.88)" : "scale(1)", transformOrigin: "left center", transition: "transform .35s ease", flexShrink: 0, textDecoration: "none" }}>
               <GradText from={grad[0]} to={grad[1]} style={{ transition: "all 0.4s ease" }}>DV.</GradText>
             </a>
+            {/* compact QA / Freelance toggle */}
+            <div style={{ position: "relative" }}>
+              <div className="switchWrap" style={{ display: "inline-flex", flexShrink: 0, padding: 3, opacity: scrolled ? 1 : 0.65, transition: "opacity .35s ease" }}>
+                <button className="switchBtn navToggleBtn" title="QA Engineer" aria-label="QA Engineer" aria-pressed={mode === "qa"} onClick={() => setRole("qa")} style={mode === "qa" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.qa1},${C.qa2})` } : {}}>
+                  <TestTube2 size={13} />
+                </button>
+                <button className="switchBtn navToggleBtn" title="Freelance Dev" aria-label="Freelance Dev" aria-pressed={mode === "freelance"} onClick={() => setRole("freelance")} style={mode === "freelance" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.fl1},${C.fl2})` } : {}}>
+                  <Code2 size={13} />
+                </button>
+              </div>
+              <div style={{
+                position: "absolute", top: "100%", left: "50%",
+                background: `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`, color: "#0B0915",
+                padding: "6px 12px", borderRadius: 8, fontFamily: body, fontSize: 12, fontWeight: 700,
+                whiteSpace: "nowrap", opacity: showRoleTip ? 1 : 0, pointerEvents: "none",
+                transition: "opacity .4s ease, transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                transform: showRoleTip ? "translate(-50%, 14px)" : "translate(-50%, 8px)"
+              }}>
+                <div style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 8, height: 8, background: grad[0], borderRadius: 1 }} />
+                Switch profiles here!
+              </div>
+            </div>
           </div>
 
           {/* Nav Links - Center */}
-          <nav style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }} className="navLinksDesktop">
+          <nav style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, position: "relative" }} className="navLinksDesktop">
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, left: activeRect.left, width: activeRect.width,
+              background: `linear-gradient(135deg, ${grad[0]}25, ${grad[1]}15)`,
+              border: `1px solid ${grad[0]}40`,
+              borderRadius: 999,
+              opacity: activeRect.opacity,
+              transition: "all 0.4s cubic-bezier(0.25, 1, 0.5, 1)",
+              pointerEvents: "none"
+            }} />
             {navLinks.map((l) => (
-              <a key={l.id} href={`#${l.id}`} onClick={goTo(l.id)} className="navLink" style={{ fontFamily: body, fontWeight: 600, fontSize: 13.5, color: C.mid, padding: "8px 13px", borderRadius: 999, whiteSpace: "nowrap" }}>{l.label}</a>
+              <a 
+                id={`nav-link-${l.id}`}
+                key={l.id} 
+                href={`#${l.id}`} 
+                onClick={goTo(l.id)} 
+                className="navLink" 
+                style={{ 
+                  fontFamily: body, fontWeight: 600, fontSize: 13.5, 
+                  color: activeSection === l.id ? C.hi : C.mid, 
+                  padding: "8px 13px", borderRadius: 999, whiteSpace: "nowrap",
+                  position: "relative", zIndex: 1,
+                  transition: "color 0.3s ease"
+                }}
+              >
+                {l.label}
+              </a>
             ))}
           </nav>
 
           {/* Actions - Right */}
           <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10 }}>
-            {/* compact QA / Freelance toggle */}
-            <div className="switchWrap" style={{ display: "inline-flex", flexShrink: 0, padding: 3, opacity: scrolled ? 1 : 0.65, transition: "opacity .35s ease" }}>
-              <button className="switchBtn navToggleBtn" title="QA Engineer" aria-label="QA Engineer" aria-pressed={mode === "qa"} onClick={() => setRole("qa")} style={mode === "qa" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.qa1},${C.qa2})` } : {}}>
-                <TestTube2 size={13} />
-              </button>
-              <button className="switchBtn navToggleBtn" title="Freelance Dev" aria-label="Freelance Dev" aria-pressed={mode === "freelance"} onClick={() => setRole("freelance")} style={mode === "freelance" ? { color: "#0B0915", background: `linear-gradient(95deg,${C.fl1},${C.fl2})` } : {}}>
-                <Code2 size={13} />
-              </button>
-            </div>
-
             <MagButton href={`#${contactId}`} onClick={goTo(contactId)} primary grad={grad} small>
               <Mail size={14} /> Hire me
             </MagButton>
@@ -1904,7 +2428,7 @@ export default function Portfolio() {
         </div>
 
         {menuOpen && (
-          <div className="mobileMenu" style={{ position: "absolute", top: "calc(100% + 8px)", left: 16, right: 16, background: "rgba(16,12,31,0.95)", border: `1px solid ${C.line}`, borderRadius: 18, backdropFilter: "blur(18px)", padding: 10, display: "flex", flexDirection: "column", gap: 2, boxShadow: "0 20px 40px -20px rgba(0,0,0,0.7)" }}>
+          <div className="mobileMenu" style={{ position: "absolute", top: "calc(100% + 8px)", left: 16, right: 16, background: mode === "qa" ? "rgba(8, 17, 28, 0.95)" : "rgba(26, 14, 10, 0.95)", border: `1px solid ${C.line}`, borderRadius: 18, backdropFilter: "blur(18px)", padding: 10, display: "flex", flexDirection: "column", gap: 2, boxShadow: "0 20px 40px -20px rgba(0,0,0,0.7)" }}>
             {navLinks.map((l) => (
               <a key={l.id} href={`#${l.id}`} onClick={goTo(l.id)} style={{ fontFamily: body, fontWeight: 600, fontSize: 15, color: C.hi, padding: "12px 14px", borderRadius: 12 }}>{l.label}</a>
             ))}
@@ -1946,7 +2470,7 @@ export default function Portfolio() {
                 <div style={{ position: "relative" }}>
                   <div style={{ width: "clamp(200px, 60vw, 280px)", height: "clamp(200px, 60vw, 280px)", padding: 6, background: `linear-gradient(135deg,${grad[0]},${grad[1]})`, animation: "morph 8s ease-in-out infinite", position: "relative", zIndex: 2, boxShadow: `0 20px 50px -20px ${grad[0]}66` }}>
                     <div style={{ width: "100%", height: "100%", overflow: "hidden", background: C.bg2, animation: "morph 8s ease-in-out infinite" }}>
-                      <img src="/profile.jpeg" alt="Deshanth Vishvalingam" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src="/profile.png" alt="Deshanth Vishvalingam" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   </div>
 
@@ -1966,7 +2490,7 @@ export default function Portfolio() {
               {/* Action Buttons (Moved under profile image) */}
               <div className="heroBtns" style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 10 }}>
                 <MagButton href="#projects" onClick={goTo("projects")} primary grad={grad}><Rocket size={16} /> See my work</MagButton>
-                <MagButton href="mailto:hello.deshanth@gmail.com" grad={grad}><Mail size={16} /> Email Me</MagButton>
+                <MagButton href={`mailto:${emailId}`} grad={grad}><Mail size={16} /> Email Me</MagButton>
                 {mode === "qa" && (
                   <MagButton href="/Vishvalingam Deshanth.pdf" download grad={grad}>
                     <Download size={16} /> Download CV
@@ -2194,37 +2718,11 @@ export default function Portfolio() {
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* ── Info banner ── */}
-            <GlassCard hover={false} style={{
-              background: "linear-gradient(135deg,rgba(255,122,89,0.08),rgba(255,200,87,0.06))",
-              padding: "26px 28px", position: "relative", overflow: "hidden",
-              display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16,
-            }}>
-              <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: `radial-gradient(circle, ${C.fl1}18, transparent 70%)`, pointerEvents: "none" }} />
 
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 10 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 11, display: "grid", placeItems: "center", flexShrink: 0, background: `${C.fl1}18`, border: `1px solid ${C.fl1}30`, color: C.fl1 }}>
-                    <Code2 size={19} />
-                  </div>
-                  <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 19, margin: 0, color: C.hi }}>Ready to Build Your Website?</h3>
-                </div>
-                <p style={{ color: C.mid, fontSize: 14, lineHeight: 1.75, margin: "0 0 16px", maxWidth: 480 }}>
-                  From small business sites to full web applications — built fast, built right, and built around your needs.
-                </p>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 14px" }}>
-                  <Clock size={13} style={{ color: C.fl1 }} />
-                  <span style={{ fontFamily: body, fontSize: 13, color: C.mid }}>Typical response: <span style={{ color: C.hi, fontWeight: 600 }}>24–48 hours</span></span>
-                </div>
-              </div>
-            </GlassCard>
             {/* ── Form ── */}
-            <GlassCard hover={false} style={{ padding: 30 }}>
+            <GlassCard hover={false} className="responsive-card">
               <WebDevWizard />
             </GlassCard>
-
-            <ProcessTimeline mode="freelance" />
-
 
           </div>
         </section>
@@ -2246,37 +2744,11 @@ export default function Portfolio() {
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* ── Info banner ── */}
-            <GlassCard hover={false} style={{
-              background: "linear-gradient(135deg,rgba(52,230,196,0.08),rgba(124,92,255,0.06))",
-              padding: "26px 28px", position: "relative", overflow: "hidden",
-              display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16,
-            }}>
-              <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: `radial-gradient(circle, ${C.qa1}18, transparent 70%)`, pointerEvents: "none" }} />
 
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 10 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 11, display: "grid", placeItems: "center", flexShrink: 0, background: `${C.qa1}18`, border: `1px solid ${C.qa1}30`, color: C.qa1 }}>
-                    <TestTube2 size={19} />
-                  </div>
-                  <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 19, margin: 0, color: C.hi }}>Ready to Improve Your Software Quality?</h3>
-                </div>
-                <p style={{ color: C.mid, fontSize: 14, lineHeight: 1.75, margin: "0 0 16px", maxWidth: 480 }}>
-                  I'll help identify and fix defects before they reach your users — with clear test documentation and professional reporting.
-                </p>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 14px" }}>
-                  <Clock size={13} style={{ color: C.qa1 }} />
-                  <span style={{ fontFamily: body, fontSize: 13, color: C.mid }}>Typical response: <span style={{ color: C.hi, fontWeight: 600 }}>24–48 hours</span></span>
-                </div>
-              </div>
-            </GlassCard>
             {/* ── Form ── */}
-            <GlassCard hover={false} style={{ padding: 30 }}>
+            <GlassCard hover={false} className="responsive-card">
               <QAWizard />
             </GlassCard>
-
-            <ProcessTimeline mode="qa" />
-
 
           </div>
         </section>
@@ -2285,7 +2757,7 @@ export default function Portfolio() {
 
         <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 24, marginTop: 10, paddingBottom: 60, position: "relative", zIndex: 1 }}>
           {[
-            { icon: <Mail size={15} />, label: "hello.deshanth@gmail.com", href: "mailto:hello.deshanth@gmail.com" },
+            { icon: <Mail size={15} />, label: emailId, href: `mailto:${emailId}` },
             { icon: <GitBranch size={15} />, label: "github.com/Desh07", href: "https://github.com/Desh07" },
             { icon: <ArrowUpRight size={15} />, label: "LinkedIn", href: "https://www.linkedin.com/in/vishvalingam-deshanth" },
             { icon: <MapPin size={15} />, label: "Matale, Sri Lanka", href: null },
