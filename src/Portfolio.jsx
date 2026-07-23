@@ -2057,9 +2057,9 @@ function PrysalFeaturedCard({ onSeeMore }) {
 
 function PrysalModal({ isOpen, onClose }) {
   const prysalImages = [
-    "/ChatGPT%20Image%20Jul%2022,%202026,%2006_37_35%20PM.png",
-    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_02_20%20PM.png",
-    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_24_16%20PM.png"
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2006_37_35%20PM(1).png",
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_02_20%20PM(2).png",
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_24_16%20PM(1).png"
   ];
   const [selectedIndex, setSelectedIndex] = useState(null);
   useEffect(() => {
@@ -2140,7 +2140,7 @@ function PrysalModal({ isOpen, onClose }) {
                 onMouseEnter={e => e.currentTarget.style.transform = "scale(1.02)"}
                 onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
               >
-                <img src={src} alt={`Case study screenshot ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={src} alt={`Case study screenshot ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             ))}
         </div>
