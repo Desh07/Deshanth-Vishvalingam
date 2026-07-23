@@ -5,7 +5,7 @@ import {
   Quote, Wand2, Rocket, Menu, X, ChevronLeft, ChevronRight,
   Utensils, ShoppingBag, Scissors, Building2, CheckCircle2, Clock, Zap, Star,
   ImagePlus, Download, ExternalLink, Loader2, MessageSquare, HelpCircle, ArrowUp,
-  Globe, FileText, ShoppingCart, Briefcase, Calendar, RefreshCw, Wrench, Monitor, Cloud
+  Globe, FileText, ShoppingCart, Briefcase, Calendar, RefreshCw, Wrench, Monitor, Cloud, ArrowRight
 } from "lucide-react";
 
 const C = {
@@ -2006,6 +2006,259 @@ function ComplexityIndicator({ form, color, mode }) {
     </div>
   );
 }
+/* ── Prysal Featured Project Components ───────────────────────────────── */
+function PrysalFeaturedCard({ onSeeMore }) {
+  return (
+    <div style={{ position: "relative", marginBottom: 40, width: "100%", margin: "0 auto" }}>
+      <GlassCard className="responsive-pad" style={{ display: "flex", flexDirection: "column", gap: 24, position: "relative", overflow: "hidden", padding: "48px 5%" }}>
+        <div style={{
+          position: "absolute", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%",
+          background: `radial-gradient(circle, ${C.fl1}20, transparent 70%)`, pointerEvents: "none",
+        }} />
+        
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 40 }}>
+          <div style={{ flex: "1 1 500px" }}>
+            <span style={{ fontFamily: mono, fontSize: 12, color: C.fl1, letterSpacing: 1, padding: "4px 10px", background: `${C.fl1}15`, borderRadius: 999, border: `1px solid ${C.fl1}40` }}>FEATURED PROJECT</span>
+            <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(28px, 5vw, 42px)", margin: "16px 0 16px", color: C.hi }}>
+              Prysal Creative Hub
+            </h3>
+            <p style={{ fontFamily: body, fontSize: 16, color: C.mid, margin: "0 0 28px", lineHeight: 1.7 }}>
+              A full-stack agency platform featuring two distinct sections: Prysal Design Hub and Prysal Print Hub. Built with a custom CMS and completely automated end-to-end testing pipelines.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap", marginBottom: 40 }}>
+              {["Next.js", "Supabase", "Custom CMS", "Playwright", "Vercel"].map(t => (
+                <span key={t} style={{ fontFamily: mono, fontSize: 12, color: C.hi, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "6px 12px" }}>{t}</span>
+              ))}
+            </div>
+            
+            <button 
+              onClick={onSeeMore}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8, fontFamily: body, fontWeight: 700, fontSize: 15,
+                padding: "16px 32px", borderRadius: 12, background: `linear-gradient(95deg, ${C.fl1}, ${C.fl2})`,
+                color: "#0B0915", border: "none", cursor: "pointer", transition: "transform .2s ease",
+                boxShadow: `0 8px 24px -8px ${C.fl1}66`
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+            >
+              See Full Case Study <ArrowRight size={18} />
+            </button>
+          </div>
+          
+          <div style={{ flex: "1 1 450px", position: "relative", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 40px -10px rgba(0,0,0,0.5)", aspectRatio: "16/10" }}>
+            <img src="/2026-07-22%2023-22-08.gif" alt="Prysal Featured Project" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
+function PrysalModal({ isOpen, onClose }) {
+  const prysalImages = [
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2006_37_35%20PM.png",
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_02_20%20PM.png",
+    "/ChatGPT%20Image%20Jul%2022,%202026,%2007_24_16%20PM.png"
+  ];
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-fade-in" style={{
+      position: "fixed", inset: 0, zIndex: 9999, display: "block",
+      background: "#0B0915", backgroundImage: `radial-gradient(120% 100% at 50% 0%, ${C.fl1}25 0%, rgba(11, 9, 21, 1) 80%)`, overflowY: "auto"
+    }}>
+      <button 
+        onClick={onClose}
+        style={{
+          position: "fixed", top: 30, right: 30, width: 44, height: 44, borderRadius: "50%",
+          display: "grid", placeItems: "center", background: "rgba(11, 9, 21, 0.6)", backdropFilter: "blur(8px)",
+          border: "1px solid rgba(255,255,255,0.2)", color: C.hi, cursor: "pointer", transition: "all .2s ease", zIndex: 10000,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.background = "rgba(11, 9, 21, 0.9)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.background = "rgba(11, 9, 21, 0.6)"; }}
+      >
+        <X size={20} />
+      </button>
+
+      <div className="modal-slide-up">
+        {/* Cinematic Hero GIF */}
+        <div style={{ position: "relative", width: "100%", height: "65vh", overflow: "hidden" }}>
+        {/* Replace the src below with your GIF URL (either a local import or a hosted link) */}
+        <img 
+          src="/2026-07-22%2023-22-08.gif" 
+          alt="Prysal Case Study Animation" 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+        />
+        {/* Gradient Overlay to blend into background */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, #0B0915 0%, rgba(11,9,21,0.8) 40%, transparent 100%)", pointerEvents: "none" }} />
+      </div>
+
+      {/* Main Content Area */}
+      <div style={{ maxWidth: 1200, width: "90%", margin: "-80px auto 100px", position: "relative", zIndex: 10 }}>
+        
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 20, marginBottom: 40 }}>
+          <div>
+            <span style={{ fontFamily: mono, fontSize: 13, color: C.fl1, letterSpacing: 2, textTransform: "uppercase" }}>Featured Case Study</span>
+            <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(36px, 6vw, 56px)", margin: "8px 0 0", color: C.hi, lineHeight: 1.1 }}>
+              Prysal Creative Hub
+            </h2>
+          </div>
+          <a 
+            href="https://prysal-creativehub.vercel.app/" 
+            target="_blank" rel="noreferrer"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 10, fontFamily: body, fontWeight: 700, fontSize: 15,
+              padding: "16px 32px", borderRadius: 999, background: `linear-gradient(95deg, ${C.fl1}, ${C.fl2})`,
+              color: "#0B0915", textDecoration: "none", transition: "transform .2s ease", boxShadow: `0 10px 30px -10px ${C.fl1}88`
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+          >
+            Launch Live Site <ExternalLink size={18} />
+          </a>
+        </div>
+
+        {/* Horizontal Image Gallery */}
+        <div className="gallery-scrollbar" style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 24, marginBottom: 40 }}>
+            {prysalImages.map((src, i) => (
+              <div 
+                key={i} 
+                onClick={() => setSelectedIndex(i)}
+                style={{ flexShrink: 0, width: "30%", minWidth: 280, aspectRatio: "16/9", background: "rgba(255,255,255,0.03)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden", cursor: "zoom-in", transition: "transform .2s ease", boxShadow: "0 10px 20px -10px rgba(0,0,0,0.5)" }}
+                onMouseEnter={e => e.currentTarget.style.transform = "scale(1.02)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+              >
+                <img src={src} alt={`Case study screenshot ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            ))}
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 60, alignItems: "start" }}>
+          
+          <div style={{ flex: "1 1 500px" }}>
+            <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 22, color: C.hi, margin: "0 0 16px" }}>Project Overview</h3>
+            <p style={{ fontFamily: body, fontSize: 16, color: C.mid, lineHeight: 1.8, margin: "0 0 40px" }}>
+              Prysal Creative Hub is a comprehensive digital agency platform divided into two core branches: Prysal Design Hub and Prysal Print Hub. I engineered the entire full-stack experience to unify the agency’s digital presence and streamline their operations.
+            </p>
+            
+            <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 22, color: C.hi, margin: "0 0 16px" }}>Purpose & Impact</h3>
+            <p style={{ fontFamily: body, fontSize: 16, color: C.mid, lineHeight: 1.8, margin: "0 0 40px" }}>
+              The primary objective was to deliver a modern, high-performance web experience while giving the agency absolute ownership over their content. To achieve this, I built a bespoke Content Management System (CMS) that allows the client to dynamically manage portfolios, services, and print specifications across both branches without writing a single line of code.
+            </p>
+
+            <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 22, color: C.hi, margin: "0 0 16px" }}>Key Technical Achievements</h3>
+            <ul style={{ fontFamily: body, fontSize: 15, color: C.mid, lineHeight: 1.8, margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+              <li><strong style={{ color: C.hi }}>Full-Stack Architecture:</strong> Developed a responsive, server-side rendered frontend using Next.js and TailwindCSS, resulting in exceptional SEO and lightning-fast load times.</li>
+              <li><strong style={{ color: C.hi }}>Custom CMS & Database:</strong> Architected a relational database schema using Supabase (PostgreSQL) to handle dynamic content injection across multiple agency portals.</li>
+              <li><strong style={{ color: C.hi }}>Secure Authentication:</strong> Integrated a robust Admin dashboard protected by Supabase's cryptographic authentication system (bcrypt) to ensure absolute content security.</li>
+              <li><strong style={{ color: C.hi }}>Comprehensive Quality Assurance:</strong> Engineered an automated End-to-End (E2E) and API testing suite using Playwright, ensuring zero regressions across critical user journeys before every deployment.</li>
+              <li><strong style={{ color: C.hi }}>Strict CI/CD Gated Deployments:</strong> Architected an enterprise-grade pipeline utilizing GitHub Actions for Continuous Integration (CI). Automated testing suites act as a strict deployment gate, triggering Vercel via secure tokens for Continuous Deployment (CD) only if zero regressions are detected, ensuring 100% production uptime.</li>
+            </ul>
+          </div>
+
+          <div style={{ flex: "0 1 350px", width: "100%", position: "sticky", top: 40, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.05)", padding: 32 }}>
+            <h3 style={{ fontFamily: display, fontWeight: 700, fontSize: 18, color: C.hi, margin: "0 0 24px" }}>Technical Stack</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40 }}>
+              <div>
+                <div style={{ fontFamily: mono, fontSize: 11, color: C.fl1, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>Frontend</div>
+                <div style={{ fontFamily: body, fontSize: 15, color: C.hi, fontWeight: 600 }}>Next.js (React), TailwindCSS, JavaScript</div>
+              </div>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+              <div>
+                <div style={{ fontFamily: mono, fontSize: 11, color: C.fl1, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>Backend & DB</div>
+                <div style={{ fontFamily: body, fontSize: 15, color: C.hi, fontWeight: 600 }}>Supabase (PostgreSQL), API Routes</div>
+              </div>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+              <div>
+                <div style={{ fontFamily: mono, fontSize: 11, color: C.fl1, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>QA Automation</div>
+                <div style={{ fontFamily: body, fontSize: 15, color: C.hi, fontWeight: 600 }}>Playwright</div>
+              </div>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+              <div>
+                <div style={{ fontFamily: mono, fontSize: 11, color: C.fl1, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>CI/CD Pipeline</div>
+                <div style={{ fontFamily: body, fontSize: 15, color: C.hi, fontWeight: 600 }}>GitHub Actions, Vercel</div>
+              </div>
+            </div>
+            
+            <a 
+              href="https://github.com/Desh07/prysal_creativehub.git" 
+              target="_blank" rel="noreferrer"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: body, fontWeight: 700, fontSize: 15,
+                padding: "16px", borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                color: C.hi, textDecoration: "none", transition: "all .2s ease"
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = C.fl1; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+            >
+              <GitBranch size={18} /> View Source on GitHub
+            </a>
+          </div>
+
+        </div>
+      </div>
+      </div>
+
+      {/* Lightbox Overlay */}
+      {selectedIndex !== null && (
+        <div 
+          style={{
+            position: "fixed", inset: 0, zIndex: 100000, background: "rgba(11,9,21,0.95)", backdropFilter: "blur(12px)",
+            display: "flex", justifyContent: "space-between", alignItems: "center", padding: "40px"
+          }}
+        >
+          {/* Close Area Background */}
+          <div style={{ position: "absolute", inset: 0, cursor: "zoom-out" }} onClick={() => setSelectedIndex(null)} />
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); setSelectedIndex(s => (s - 1 + prysalImages.length) % prysalImages.length); }}
+            style={{ position: "relative", zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 50, height: 50, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.2)"; e.currentTarget.style.transform = "scale(1.1)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "scale(1)"; }}
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <img 
+            src={prysalImages[selectedIndex]} 
+            alt="Expanded screenshot" 
+            style={{ position: "relative", zIndex: 2, maxWidth: "80%", maxHeight: "90%", borderRadius: 16, boxShadow: "0 40px 80px rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }} 
+          />
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); setSelectedIndex(s => (s + 1) % prysalImages.length); }}
+            style={{ position: "relative", zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 50, height: 50, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.2)"; e.currentTarget.style.transform = "scale(1.1)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "scale(1)"; }}
+          >
+            <ChevronRight size={24} />
+          </button>
+          
+          <button 
+            onClick={() => setSelectedIndex(null)}
+            style={{ position: "absolute", top: 40, right: 40, zIndex: 2, background: "transparent", border: "none", color: C.low, cursor: "pointer", transition: "all .2s ease" }}
+            onMouseEnter={e => e.currentTarget.style.color = C.hi}
+            onMouseLeave={e => e.currentTarget.style.color = C.low}
+          >
+            <X size={32} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ══════════════════════════════════════════════════════════════
    MAIN COMPONENT
@@ -2017,6 +2270,7 @@ export default function Portfolio() {
   const [swipeKey, setSwipeKey] = useState(0);
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [showPrysalModal, setShowPrysalModal] = useState(false);
   const firstRender = useRef(true);
   useReveal();
   const scrolled = useScrolled();
@@ -2096,15 +2350,11 @@ export default function Portfolio() {
 
   const [showRoleTip, setShowRoleTip] = useState(false);
   useEffect(() => {
-    const hasSeen = localStorage.getItem("hasSeenRoleTip");
-    if (!hasSeen) {
-      const showTimer = setTimeout(() => setShowRoleTip(true), 2500);
-      const hideTimer = setTimeout(() => {
-        setShowRoleTip(false);
-        localStorage.setItem("hasSeenRoleTip", "true");
-      }, 7500);
-      return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
-    }
+    const showTimer = setTimeout(() => setShowRoleTip(true), 2500);
+    const hideTimer = setTimeout(() => {
+      setShowRoleTip(false);
+    }, 7500);
+    return () => { clearTimeout(showTimer); clearTimeout(hideTimer); };
   }, []);
 
   const [flipState, setFlipState] = useState("idle");
@@ -2116,7 +2366,6 @@ export default function Portfolio() {
   const setRole = (next, onFlipped) => {
     setShowRoleTip(false);
     setMenuOpen(false);
-    localStorage.setItem("hasSeenRoleTip", "true");
     
     if (mode === next || flipState === "out") {
       if (onFlipped) onFlipped();
@@ -2571,6 +2820,12 @@ export default function Portfolio() {
           </div>
         </section>
 
+        {mode === "freelance" && (
+          <section style={{ maxWidth: 1600, width: "92%", margin: "0 auto", position: "relative", zIndex: 1, paddingBottom: 20 }}>
+             <PrysalFeaturedCard onSeeMore={() => setShowPrysalModal(true)} />
+          </section>
+        )}
+
         {/* ══ SKILLS ════════════════════════════════════════════════ */}
         <section id="work" className="reveal" style={{ maxWidth: 1600, width: "92%", margin: "0 auto", padding: "10px 0 60px", position: "relative", zIndex: 1 }}>
           <div style={{ marginBottom: 26 }}>
@@ -2682,6 +2937,7 @@ export default function Portfolio() {
           ) : (
             <>
               {/* ── Freelance attraction sections ── */}
+              
               <ClientCarousel />
               <FreelanceStats />
               <WhatYouGet />
@@ -2760,7 +3016,7 @@ export default function Portfolio() {
             { icon: <Mail size={15} />, label: emailId, href: `mailto:${emailId}` },
             { icon: <GitBranch size={15} />, label: "github.com/Desh07", href: "https://github.com/Desh07" },
             { icon: <ArrowUpRight size={15} />, label: "LinkedIn", href: "https://www.linkedin.com/in/vishvalingam-deshanth" },
-            { icon: <MapPin size={15} />, label: "Matale, Sri Lanka", href: null },
+            { icon: <MapPin size={15} />, label: "Sri Lanka", href: null },
           ].map(({ icon, label, href }) => {
             const cColor = mode === "qa" ? C.qa1 : C.fl1;
             return (
@@ -2817,6 +3073,8 @@ export default function Portfolio() {
           {toastMsg}
         </div>
       )}
+      
+      <PrysalModal isOpen={showPrysalModal} onClose={() => setShowPrysalModal(false)} />
     </div>
   );
 }
