@@ -2216,7 +2216,7 @@ function PrysalModal({ isOpen, onClose }) {
         <div 
           style={{
             position: "fixed", inset: 0, zIndex: 100000, background: "rgba(11,9,21,0.95)", backdropFilter: "blur(12px)",
-            display: "flex", justifyContent: "space-between", alignItems: "center", padding: "40px"
+            display: "flex", justifyContent: "center", alignItems: "center", padding: "16px"
           }}
         >
           {/* Close Area Background */}
@@ -2224,7 +2224,7 @@ function PrysalModal({ isOpen, onClose }) {
 
           <button 
             onClick={(e) => { e.stopPropagation(); setSelectedIndex(s => (s - 1 + prysalImages.length) % prysalImages.length); }}
-            style={{ position: "relative", zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 50, height: 50, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            style={{ position: "absolute", left: 16, zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 44, height: 44, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.2)"; e.currentTarget.style.transform = "scale(1.1)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "scale(1)"; }}
           >
@@ -2234,12 +2234,12 @@ function PrysalModal({ isOpen, onClose }) {
           <img 
             src={prysalImages[selectedIndex]} 
             alt="Expanded screenshot" 
-            style={{ position: "relative", zIndex: 2, maxWidth: "80%", maxHeight: "90%", borderRadius: 16, boxShadow: "0 40px 80px rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }} 
+            style={{ position: "relative", zIndex: 1, maxWidth: "calc(100% - 110px)", maxHeight: "90%", borderRadius: 12, boxShadow: "0 40px 80px rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)", objectFit: "contain" }} 
           />
 
           <button 
             onClick={(e) => { e.stopPropagation(); setSelectedIndex(s => (s + 1) % prysalImages.length); }}
-            style={{ position: "relative", zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 50, height: 50, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
+            style={{ position: "absolute", right: 16, zIndex: 2, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", width: 44, height: 44, borderRadius: "50%", display: "grid", placeItems: "center", color: C.hi, cursor: "pointer", transition: "all .2s ease" }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.2)"; e.currentTarget.style.transform = "scale(1.1)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "scale(1)"; }}
           >
